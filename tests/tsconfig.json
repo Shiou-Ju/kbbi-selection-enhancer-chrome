@@ -5,7 +5,6 @@
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "outDir": "../dist-scripts",
     "lib": ["esnext", "dom"],
     "sourceMap": true
   },
