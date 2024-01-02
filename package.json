@@ -2,6 +2,9 @@
   "name": "kbbi-selection-enhancer-chrome",
   "version": "1.0.0",
   "main": "index.js",
+  "scripts": {
+    "format": "prettier --write \"**/*.{ts,js,json}\""
+  },
   "repository": "git@github.com:Shiou-Ju/kbbi-selection-enhancer-chrome.git",
   "author": "Bamboo <75402531+Shiou-Ju@users.noreply.github.com>",
   "license": "MIT",
