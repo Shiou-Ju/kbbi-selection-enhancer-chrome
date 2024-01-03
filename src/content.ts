@@ -1,7 +1,9 @@
 const promptTitle = '幫我用臺灣使用的繁體中文翻譯以下內容\n';
 
 const exampleTranslation =
-  '\n\n依照以下的範例：\n```\n\n' +
+  '\n\n依照以下的範例：' +
+  // '\n```\n\n' +
+  '\n\n' +
   'tan·da n \n' +
   '1. 成為某事的地址或表達某事的東西：遠處聽到危險的警報聲。\n' +
   '2. 跡象：已經顯現出它的跡象。\n' +
@@ -16,19 +18,28 @@ const exampleTranslation =
   '1. 有標誌；有特徵；有商標等。\n' +
   '2. 已（戴結婚戒指）結婚。\n\n' +
   'pe·tan·da·an n \n' +
-  '標記的過程、方式、行為。\n\n```\n';
+  '標記的過程、方式、行為。\n' +
+  //  +'\n```\n';
+  '\n\n';
+
+const note = '請[不要]放在 code block 給我，謝謝。';
 
 document.addEventListener('copy', (event) => {
   const selection = document.getSelection();
-  if (selection) {
-    const selectedText = selection.toString();
-    const modifiedText = promptTitle + '```\n' + selectedText + '\n```' + exampleTranslation;
 
-    if (!event.clipboardData) {
-      return;
-    }
-
-    event.clipboardData.setData('text/plain', modifiedText);
-    event.preventDefault();
+  if (!selection) {
+    return;
   }
+
+  const selectedText = selection.toString();
+  const wrappedSelected = '```\n' + selectedText + '\n```';
+
+  const modifiedText = promptTitle + wrappedSelected + exampleTranslation + note;
+
+  if (!event.clipboardData) {
+    return;
+  }
+
+  event.clipboardData.setData('text/plain', modifiedText);
+  event.preventDefault();
 });
