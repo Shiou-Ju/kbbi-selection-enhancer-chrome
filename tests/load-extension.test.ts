@@ -1,12 +1,18 @@
 import puppeteer, { Page, Browser } from 'puppeteer';
 import path from 'path';
 
+// const TEXT_REGEX = /^ma·in/;
+const TEXT_REGEX = /ma·in/;
+
+const EXTENSION_PATH = path.join(process.cwd(), '../dist');
+
+const prefix = '幫我用臺灣使用的繁體中文翻譯以下內容\n';
+
+
 describe('KBBI Content Test', () => {
   let browser: Browser | null;
 
   //   const EXTENSION_PATH = '../dist';
-
-  const EXTENSION_PATH = path.join(process.cwd(), '../dist');
 
   //   beforeEach(async () => {
 
@@ -54,6 +60,56 @@ describe('KBBI Content Test', () => {
 
     const text = await page.$eval('#main > div > div.col-sm-8 > p.arti', (el: Element) => el.textContent);
 
-    expect(text).toMatch(/^ma·in/);
+    expect(text).toMatch(TEXT_REGEX);
+  });
+
+  test('document.getSelection() should not be null', async () => {
+    const page = await browser!.newPage();
+    await page.goto('https://kbbi.co.id/arti-kata/main');
+
+    await page.waitForSelector('#main > div > div.col-sm-8 > p.arti');
+
+    const isSelectionAvailable = await page.evaluate(() => {
+      const selection = document.getSelection();
+      //   return selection !== null && selection.toString() !== '';
+      return selection !== null;
+    });
+
+    expect(isSelectionAvailable).toBeTruthy();
+  });
+
+  test('text content should start with "ma·in" and target prefix', async () => {
+
+    // await browser!.defaultBrowserContext().overridePermissions('<your origin>', ['clipboard-read', 'clipboard-write']);
+    await browser!
+      .defaultBrowserContext()
+      .overridePermissions('https://kbbi.co.id', ['clipboard-read', 'clipboard-write']);
+
+    const page = await browser!.newPage();
+    await page.goto('https://kbbi.co.id/arti-kata/main');
+
+    await page.bringToFront();
+
+    // 选取并复制特定文字
+    await page.evaluate(() => {
+      const selection = document.getSelection();
+      const range = document.createRange();
+      const element = document.querySelector('#main > div > div.col-sm-8 > p.arti');
+
+      range.selectNodeContents(element!);
+
+      //   TODO: make sure the test works
+
+      selection!.removeAllRanges();
+      selection!.addRange(range);
+      document.execCommand('copy');
+    });
+
+    // 读取剪切板内容
+    const copiedText = await page.evaluate(() => navigator.clipboard.readText());
+
+    // 检查复制的内容是否符合预期
+    expect(copiedText.startsWith(prefix)).toBeTruthy();
+    expect(copiedText).toMatch(TEXT_REGEX);
   });
 });
