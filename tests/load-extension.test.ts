@@ -8,7 +8,6 @@ const EXTENSION_PATH = path.join(process.cwd(), '../dist');
 
 const prefix = '幫我用臺灣使用的繁體中文翻譯以下內容\n';
 
-
 describe('KBBI Content Test', () => {
   let browser: Browser | null;
 
@@ -22,7 +21,7 @@ describe('KBBI Content Test', () => {
     browser = await puppeteer.launch({
       //   TODO: 現在看來 headless new 可以運作，但是不確定 args 是否真的載入
       headless: 'new',
-      //   headless: false,
+      // headless: false,
 
       args: [
         `--disable-extensions-except=${EXTENSION_PATH}`,
@@ -44,6 +43,23 @@ describe('KBBI Content Test', () => {
       await browser.close();
     }
     browser = null;
+  });
+
+  //   FIXME: fail on this one, maybe puppeteer does not load the extension at all
+  test('service worker is active', async () => {
+    // const targets = await browser!.targets();
+    const targets = browser!.targets();
+
+    const serviceWorkerTarget = targets.find(
+      (target) => target.type() === 'service_worker'
+      //   no need for this step now
+      // && target.url().includes('your-extension-identifier')
+    );
+
+    // Check if the service worker target exists
+    expect(serviceWorkerTarget).toBeDefined();
+
+    // Additional tests can be performed here to interact with the service worker
   });
 
   test('text content should start with "ma·in"', async () => {
@@ -78,8 +94,8 @@ describe('KBBI Content Test', () => {
     expect(isSelectionAvailable).toBeTruthy();
   });
 
+  //   FIXME: fail even the build is a success to meet this requirement
   test('text content should start with "ma·in" and target prefix', async () => {
-
     // await browser!.defaultBrowserContext().overridePermissions('<your origin>', ['clipboard-read', 'clipboard-write']);
     await browser!
       .defaultBrowserContext()
