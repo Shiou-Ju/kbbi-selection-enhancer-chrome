@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "KBBI Selection Enhancer",
   "version": "1.0",
-  "description": "Enhance text selection on KBBI website.",
+  "description": "Enhance text selection on KBBI.co.id.",
 
   "content_scripts": [
     {

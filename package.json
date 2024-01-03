@@ -7,7 +7,8 @@
   "main": "index.js",
   "scripts": {
     "format": "prettier --write \"**/*.{ts,js,json}\"",
-    "test": "jest"
+    "test": "yarn build && jest",
+    "build": "rm -rf dist && tsc && cp manifest.json dist/"
   },
   "devDependencies": {
     "@types/jest": "^29.5.11",
