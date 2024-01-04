@@ -8,6 +8,8 @@ const EXTENSION_PATH = path.join(process.cwd(), 'dist');
 
 const prefix = '幫我用臺灣使用的繁體中文翻譯以下內容\n';
 
+const MAIN_DICT_PAGE = 'https://kbbi.co.id/arti-kata/main';
+
 describe('Extension loaded with text modification functionality', () => {
   let browser: Browser | null;
 
@@ -37,8 +39,7 @@ describe('Extension loaded with text modification functionality', () => {
 
   test('text content should start with "ma·in"', async () => {
     const page = await browser!.newPage();
-
-    await page.goto('https://kbbi.co.id/arti-kata/main');
+    await page.goto(MAIN_DICT_PAGE);
 
     const text = await page.$eval(SELECTORS.MAIN_EXPLANATION, (el: Element) => el.textContent);
 
@@ -47,7 +48,7 @@ describe('Extension loaded with text modification functionality', () => {
 
   test('document.getSelection() should not be null', async () => {
     const page = await browser!.newPage();
-    await page.goto('https://kbbi.co.id/arti-kata/main');
+    await page.goto(MAIN_DICT_PAGE);
 
     await page.waitForSelector(SELECTORS.MAIN_EXPLANATION);
 
@@ -66,7 +67,7 @@ describe('Extension loaded with text modification functionality', () => {
       .overridePermissions('https://kbbi.co.id', ['clipboard-read', 'clipboard-write']);
 
     const page = await browser!.newPage();
-    await page.goto('https://kbbi.co.id/arti-kata/main');
+    await page.goto(MAIN_DICT_PAGE);
 
     await page.bringToFront();
 
@@ -87,6 +88,51 @@ describe('Extension loaded with text modification functionality', () => {
     expect(copiedText.startsWith(prefix)).toBeTruthy();
     expect(copiedText).toMatch(TEXT_REGEX);
   });
+
+  // tests for one-click capture btn
+  test('button for capturing text should exist on the page', async () => {
+    const page = await browser!.newPage();
+    await page.goto(MAIN_DICT_PAGE);
+
+    const captureAllButton = await page.$(SELECTORS.BTN_FOR_ALL_EXPLANAION);
+    expect(captureAllButton).not.toBeNull();
+  });
+
+  test('clicking the capture button should retrieve the full text from MAIN_EXPLANATION', async () => {
+    const page = await browser!.newPage();
+    await page.goto(MAIN_DICT_PAGE);
+
+    await page.click(SELECTORS.BTN_FOR_ALL_EXPLANAION);
+
+    // await page.waitForFunction(`document.querySelector(${SELECTORS.MAIN_EXPLANATION}).textContent.length > 0`);
+
+    await page.waitForFunction(
+      (selector) => {
+        const element = document.querySelector(selector);
+        return element && element.textContent && element.textContent.length > 0;
+      },
+      {},
+      SELECTORS.MAIN_EXPLANATION
+    );
+
+    const capturedText = await page.evaluate(() => {
+      const text = document.querySelector(SELECTORS.MAIN_EXPLANATION)?.textContent;
+      return text;
+    });
+
+    expect(capturedText).toBeDefined();
+    expect(typeof capturedText).toBe('string');
+
+    // TODO: these texts might change, need to implement local server without depending on the actually going to the real time page.
+    const explanationInTheMiddle = 'melakukan permainan untuk menyenangkan hati';
+
+    const endPartOfExplanation = 'teman sejak kecil';
+
+    expect(capturedText).toContain(explanationInTheMiddle);
+    expect(capturedText).toContain(endPartOfExplanation);
+  });
+
+  // TODO: User Feedback: Test if there's appropriate user feedback (like a confirmation message) after the text is captured.
 });
 
 // FIXME: this test is wrongly designed.  The targets won't contain service_worker
