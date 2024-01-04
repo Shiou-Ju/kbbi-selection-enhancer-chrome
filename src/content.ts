@@ -1,3 +1,5 @@
+import { SELECTORS } from '../utils/selectors';
+
 const addCopyModification = () => {
   const promptTitle = '幫我用臺灣使用的繁體中文翻譯以下內容\n';
 
@@ -48,4 +50,30 @@ const addCopyModification = () => {
   });
 };
 
+// TODO: not yet done
+const addCaptureAllBtn = () => {
+  // /  BTN_FOR_ALL_EXPLANAION : '#capture-all-btn'
+
+  const btnParent = document.querySelector(SELECTORS.BTN_PARENT_ELEMENT);
+  if (!btnParent) return;
+
+  const button = document.createElement('button');
+  button.innerHTML = '<i class="glyphicon glyphicon-search"></i>';
+  button.className = 'btn btn-default';
+  button.id = SELECTORS.ID_BTN_FOR_ALL_EXPLANAION;
+
+  // Position the button to the right of the text
+  button.style.cssText = 'float: right; margin-left: 10px;';
+
+  // Add button to the target element
+  btnParent.appendChild(button);
+
+  // Add event listener or other logic for the button
+  button.addEventListener('click', () => {
+    // Logic when button is clicked
+    console.log(`btn works`);
+  });
+};
+
 addCopyModification();
+addCaptureAllBtn();

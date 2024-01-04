@@ -102,11 +102,21 @@ describe('Extension loaded with text modification functionality', () => {
   });
 
   // tests for one-click capture btn
+
+  test('search button should exist on the page', async () => {
+    const page = await browser!.newPage();
+    await page.goto(MAIN_DICT_PAGE);
+
+    const searchButton = await page.$(SELECTORS.SEARCH_BTN);
+
+    expect(searchButton).not.toBeNull();
+  });
+
   test('button for capturing text should exist on the page', async () => {
     const page = await browser!.newPage();
     await page.goto(MAIN_DICT_PAGE);
 
-    const captureAllButton = await page.$(SELECTORS.BTN_FOR_ALL_EXPLANAION);
+    const captureAllButton = await page.$(SELECTORS.ID_BTN_FOR_ALL_EXPLANAION);
     expect(captureAllButton).not.toBeNull();
   });
 
@@ -114,7 +124,7 @@ describe('Extension loaded with text modification functionality', () => {
     const page = await browser!.newPage();
     await page.goto(MAIN_DICT_PAGE);
 
-    await page.click(SELECTORS.BTN_FOR_ALL_EXPLANAION);
+    await page.click(SELECTORS.ID_BTN_FOR_ALL_EXPLANAION);
 
     // await page.waitForFunction(`document.querySelector(${SELECTORS.MAIN_EXPLANATION}).textContent.length > 0`);
 
