@@ -1,6 +1,6 @@
 import puppeteer, { Browser } from 'puppeteer';
 import path from 'path';
-import { SELECTORS } from './utils/selectors';
+import { SELECTORS } from '../utils/selectors';
 
 const TEXT_REGEX = /ma·in/;
 

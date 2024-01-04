@@ -1,5 +1,5 @@
 import puppeteer, { Page, Browser } from 'puppeteer';
-import { SELECTORS } from './utils/selectors';
+import { SELECTORS } from '../utils/selectors';
 
 // if needed, need to execute scripts/savePage.ts again to get the html
 describe.skip('Puppeteer Selector Test', () => {
