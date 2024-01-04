@@ -71,17 +71,29 @@ describe('Extension loaded with text modification functionality', () => {
 
     await page.bringToFront();
 
-    await page.evaluate(() => {
+    // await page.evaluate(() => {
+    //   const selection = document.getSelection();
+    //   const range = document.createRange();
+    //   const element = document.querySelector(SELECTORS.MAIN_EXPLANATION);
+
+    //   range.selectNodeContents(element!);
+
+    //   selection!.removeAllRanges();
+    //   selection!.addRange(range);
+    //   document.execCommand('copy');
+    // });
+
+    await page.evaluate((mainExplanationSelector) => {
       const selection = document.getSelection();
       const range = document.createRange();
-      const element = document.querySelector(SELECTORS.MAIN_EXPLANATION);
+      const element = document.querySelector(mainExplanationSelector);
 
       range.selectNodeContents(element!);
 
       selection!.removeAllRanges();
       selection!.addRange(range);
       document.execCommand('copy');
-    });
+    }, SELECTORS.MAIN_EXPLANATION);
 
     const copiedText = await page.evaluate(() => navigator.clipboard.readText());
 
