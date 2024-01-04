@@ -2,6 +2,7 @@ const promptTitle = '幫我用臺灣使用的繁體中文翻譯以下內容\n';
 
 const exampleTranslation =
   '\n\n依照以下的範例：' +
+  // better to produce result without code block
   // '\n```\n\n' +
   '\n\n' +
   'tan·da n \n' +
@@ -19,6 +20,7 @@ const exampleTranslation =
   '2. 已（戴結婚戒指）結婚。\n\n' +
   'pe·tan·da·an n \n' +
   '標記的過程、方式、行為。\n' +
+  // better to produce result without code block
   //  +'\n```\n';
   '\n\n';
 

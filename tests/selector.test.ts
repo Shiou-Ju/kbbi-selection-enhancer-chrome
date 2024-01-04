@@ -1,6 +1,7 @@
 import puppeteer, { Page, Browser } from 'puppeteer';
 
-describe('Puppeteer Selector Test', () => {
+// if needed, need to execute scripts/savePage.ts again to get the html
+describe.skip('Puppeteer Selector Test', () => {
   let browser: Browser;
   let page: Page;
 
