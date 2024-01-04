@@ -8,7 +8,7 @@ const EXTENSION_PATH = path.join(process.cwd(), 'dist');
 
 const prefix = '幫我用臺灣使用的繁體中文翻譯以下內容\n';
 
-describe('KBBI Content Test', () => {
+describe('Extension loaded with text modification functionality', () => {
   let browser: Browser | null;
 
   beforeEach(async () => {
@@ -19,7 +19,7 @@ describe('KBBI Content Test', () => {
         `--disable-extensions-except=${EXTENSION_PATH}`,
         `--load-extension=${EXTENSION_PATH}`,
 
-        // 現在看起來沒有用，不影響
+        // 現在看起來這個參數沒有用，不影響
         // https://stackoverflow.com/questions/67049065/puppeteer-unable-to-load-chrome-extension-in-browser
         // '--enable-automation',
       ],
