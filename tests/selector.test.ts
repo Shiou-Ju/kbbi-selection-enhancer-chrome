@@ -1,4 +1,5 @@
 import puppeteer, { Page, Browser } from 'puppeteer';
+import { SELECTORS } from './utils/selectors';
 
 // if needed, need to execute scripts/savePage.ts again to get the html
 describe.skip('Puppeteer Selector Test', () => {
@@ -16,13 +17,13 @@ describe.skip('Puppeteer Selector Test', () => {
   });
 
   test('selector should be present', async () => {
-    const element = await page.$('#main > div > div.col-sm-8 > p.arti');
+    const element = await page.$(SELECTORS.MAIN_EXPLANATION);
     expect(element).not.toBeNull();
   });
 
   test('selector should contain text', async () => {
-    // const text = await page.$eval('#main > div > div.col-sm-8 > p.arti', (el) => el.textContent);
-    const text = await page.$eval('#main > div > div.col-sm-8 > p.arti', (el: Element) => el.textContent);
+    // const text = await page.$eval(SELECTORS, (el) => el.textContent);
+    const text = await page.$eval(SELECTORS.MAIN_EXPLANATION, (el: Element) => el.textContent);
 
     expect(text).toBeTruthy();
   });

@@ -1,5 +1,6 @@
 import puppeteer, { Browser } from 'puppeteer';
 import path from 'path';
+import { SELECTORS } from './utils/selectors';
 
 const TEXT_REGEX = /ma·in/;
 
@@ -39,7 +40,7 @@ describe('KBBI Content Test', () => {
 
     await page.goto('https://kbbi.co.id/arti-kata/main');
 
-    const text = await page.$eval('#main > div > div.col-sm-8 > p.arti', (el: Element) => el.textContent);
+    const text = await page.$eval(SELECTORS.MAIN_EXPLANATION, (el: Element) => el.textContent);
 
     expect(text).toMatch(TEXT_REGEX);
   });
@@ -48,7 +49,7 @@ describe('KBBI Content Test', () => {
     const page = await browser!.newPage();
     await page.goto('https://kbbi.co.id/arti-kata/main');
 
-    await page.waitForSelector('#main > div > div.col-sm-8 > p.arti');
+    await page.waitForSelector(SELECTORS.MAIN_EXPLANATION);
 
     const isSelectionAvailable = await page.evaluate(() => {
       const selection = document.getSelection();
@@ -72,7 +73,7 @@ describe('KBBI Content Test', () => {
     await page.evaluate(() => {
       const selection = document.getSelection();
       const range = document.createRange();
-      const element = document.querySelector('#main > div > div.col-sm-8 > p.arti');
+      const element = document.querySelector(SELECTORS.MAIN_EXPLANATION);
 
       range.selectNodeContents(element!);
 
