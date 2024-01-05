@@ -37,9 +37,8 @@ const addCopyModification = () => {
     }
 
     const selectedText = selection.toString();
-    const wrappedSelected = '```\n' + selectedText + '\n```';
 
-    const modifiedText = promptTitle + wrappedSelected + exampleTranslation + note;
+    const modifiedText = convertSelectedTextToPromptForTranslation(selectedText, promptTitle, exampleTranslation, note);
 
     if (!event.clipboardData) {
       return;
@@ -49,6 +48,23 @@ const addCopyModification = () => {
     event.preventDefault();
   });
 };
+
+function convertSelectedTextToPromptForTranslation(
+  selection: string,
+  promptTitle: string,
+  exampleTranslation: string,
+  note: string
+) {
+  if (!selection) {
+    return '';
+  }
+
+  const selectedText = selection.toString();
+  const wrappedSelected = '```\n' + selectedText + '\n```';
+  const modifiedText = promptTitle + wrappedSelected + exampleTranslation + note;
+
+  return modifiedText;
+}
 
 // TODO: not yet done
 const addCaptureAllBtn = () => {

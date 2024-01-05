@@ -116,7 +116,9 @@ describe('Extension loaded with text modification functionality', () => {
     const page = await browser!.newPage();
     await page.goto(MAIN_DICT_PAGE);
 
-    const captureAllButton = await page.$(SELECTORS.ID_BTN_FOR_ALL_EXPLANAION);
+    const buttonId = '#' + SELECTORS.ID_BTN_FOR_ALL_EXPLANAION;
+
+    const captureAllButton = await page.$(buttonId);
     expect(captureAllButton).not.toBeNull();
   });
 
