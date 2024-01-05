@@ -79,11 +79,19 @@ const addCaptureAllBtn = () => {
   button.className = 'btn btn-default';
   button.id = SELECTORS.ID_BTN_FOR_ALL_EXPLANAION;
 
-  // Position the button to the right of the text
-  button.style.cssText = 'float: right; margin-left: 10px;';
+  // 創建一個 div 容器
+  const buttonContainer = document.createElement('div');
+  buttonContainer.appendChild(button);
+  // TODO: proved no need, think why
+  // buttonContainer.style.cssText = 'float: right; margin-left: 10px;';
 
-  // Add button to the target element
-  btnParent.appendChild(button);
+  // 尋找 BTN_PARENT_ELEMENT 指定的元素
+  const parentElement = document.querySelector(SELECTORS.BTN_PARENT_ELEMENT);
+
+  // 將 div 容器插入到 parentElement 的後面
+  if (parentElement) {
+    parentElement.insertAdjacentElement('afterend', buttonContainer);
+  }
 
   // Add event listener or other logic for the button
   button.addEventListener('click', () => {
