@@ -1,5 +1,6 @@
-import puppeteer, { Browser } from 'puppeteer';
+import puppeteer, { Browser, Page } from 'puppeteer';
 import path from 'path';
+import * as fs from 'fs';
 import { SELECTORS } from '../utils/selectors';
 
 const TEXT_REGEX = /ma·in/;
@@ -8,7 +9,19 @@ const EXTENSION_PATH = path.join(process.cwd(), 'dist');
 
 const prefix = '幫我用臺灣使用的繁體中文翻譯以下內容\n';
 
-const MAIN_DICT_PAGE = 'https://kbbi.co.id/arti-kata/main';
+const TARGET_DICT_PAGE = 'https://kbbi.co.id/arti-kata/main';
+
+async function takeScreenshotForTest(testName: string, page: Page): Promise<void> {
+  const screenshotsDir = './screenshots';
+  if (!fs.existsSync(screenshotsDir)) {
+    fs.mkdirSync(screenshotsDir);
+  }
+
+  const timestamp = new Date().toISOString().replace(/:/g, '-');
+  const screenshotPath = path.join(screenshotsDir, `${testName}-${timestamp}.png`);
+
+  await page.screenshot({ path: screenshotPath });
+}
 
 describe('Extension loaded with text modification functionality', () => {
   let browser: Browser | null;
@@ -39,7 +52,7 @@ describe('Extension loaded with text modification functionality', () => {
 
   test('text content should start with "ma·in"', async () => {
     const page = await browser!.newPage();
-    await page.goto(MAIN_DICT_PAGE);
+    await page.goto(TARGET_DICT_PAGE);
 
     const text = await page.$eval(SELECTORS.MAIN_EXPLANATION, (el: Element) => el.textContent);
 
@@ -48,7 +61,7 @@ describe('Extension loaded with text modification functionality', () => {
 
   test('document.getSelection() should not be null', async () => {
     const page = await browser!.newPage();
-    await page.goto(MAIN_DICT_PAGE);
+    await page.goto(TARGET_DICT_PAGE);
 
     await page.waitForSelector(SELECTORS.MAIN_EXPLANATION);
 
@@ -67,7 +80,7 @@ describe('Extension loaded with text modification functionality', () => {
       .overridePermissions('https://kbbi.co.id', ['clipboard-read', 'clipboard-write']);
 
     const page = await browser!.newPage();
-    await page.goto(MAIN_DICT_PAGE);
+    await page.goto(TARGET_DICT_PAGE);
 
     await page.bringToFront();
 
@@ -105,16 +118,18 @@ describe('Extension loaded with text modification functionality', () => {
 
   test('search button should exist on the page', async () => {
     const page = await browser!.newPage();
-    await page.goto(MAIN_DICT_PAGE);
+    await page.goto(TARGET_DICT_PAGE);
 
     const searchButton = await page.$(SELECTORS.SEARCH_BTN);
 
     expect(searchButton).not.toBeNull();
+
+    await takeScreenshotForTest('search-button-existence', page);
   });
 
   test('button for capturing text should exist on the page', async () => {
     const page = await browser!.newPage();
-    await page.goto(MAIN_DICT_PAGE);
+    await page.goto(TARGET_DICT_PAGE);
 
     const buttonId = '#' + SELECTORS.ID_BTN_FOR_ALL_EXPLANAION;
 
@@ -124,7 +139,7 @@ describe('Extension loaded with text modification functionality', () => {
 
   test('clicking the capture button should retrieve the full text from MAIN_EXPLANATION', async () => {
     const page = await browser!.newPage();
-    await page.goto(MAIN_DICT_PAGE);
+    await page.goto(TARGET_DICT_PAGE);
 
     await page.click(SELECTORS.ID_BTN_FOR_ALL_EXPLANAION);
 

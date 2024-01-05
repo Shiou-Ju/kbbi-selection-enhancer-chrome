@@ -70,6 +70,7 @@ function convertSelectedTextToPromptForTranslation(
 const addCaptureAllBtn = () => {
   // /  BTN_FOR_ALL_EXPLANAION : '#capture-all-btn'
 
+  // TODO: maybe in the above parent, not this layer
   const btnParent = document.querySelector(SELECTORS.BTN_PARENT_ELEMENT);
   if (!btnParent) return;
 
