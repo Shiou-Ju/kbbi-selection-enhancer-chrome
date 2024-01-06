@@ -9,7 +9,7 @@ const EXTENSION_PATH = path.join(process.cwd(), 'dist');
 
 const prefix = '幫我用臺灣使用的繁體中文翻譯以下內容\n';
 
-const TARGET_DICT_PAGE = 'https://kbbi.co.id/arti-kata/main';
+const PAGE_WITH_ONLY_ONE_EXPLANATION_DIV = 'https://kbbi.co.id/arti-kata/main';
 
 const PAGE_WITH_MUTIPLE_EXLANATION_DIV = 'https://kbbi.co.id/arti-kata/kasih';
 
@@ -31,13 +31,11 @@ async function takeScreenshotForTest(testName: string, page: Page): Promise<void
  */
 async function clearClipboard(page: Page) {
   await page.evaluate(() => {
-    // 清除任何現有的選擇
     const selection = document.getSelection();
     if (selection) {
       selection.removeAllRanges();
     }
 
-    // 嘗試複製空內容到剪貼簿
     document.execCommand('copy');
   });
 }
@@ -46,9 +44,6 @@ describe('Extension loaded with text modification functionality', () => {
   let browser: Browser | null;
 
   beforeEach(async () => {
-    // TODO: clear text in clipboard here
-    // use clear clip board function instead now
-
     browser = await puppeteer.launch({
       headless: false,
 
@@ -61,13 +56,6 @@ describe('Extension loaded with text modification functionality', () => {
         // '--enable-automation',
       ],
     });
-
-    // TODO: maybe remove
-    // const page = await browser.newPage();
-    // await page.goto('about:blank'); // 轉到空白頁面
-    // await page.bringToFront(); // 確保頁面獲得焦點
-    // await page.evaluate(() => navigator.clipboard.writeText('')); // 清空剪貼簿
-    // await page.close(); // 關閉頁面
   });
 
   // recommended by chrome:
@@ -81,7 +69,7 @@ describe('Extension loaded with text modification functionality', () => {
 
   test('text content should start with "ma·in"', async () => {
     const page = await browser!.newPage();
-    await page.goto(TARGET_DICT_PAGE);
+    await page.goto(PAGE_WITH_ONLY_ONE_EXPLANATION_DIV);
 
     const text = await page.$eval(SELECTORS.EXPLANATION_SECTORS, (el: Element) => el.textContent);
 
@@ -90,7 +78,7 @@ describe('Extension loaded with text modification functionality', () => {
 
   test('document.getSelection() should not be null', async () => {
     const page = await browser!.newPage();
-    await page.goto(TARGET_DICT_PAGE);
+    await page.goto(PAGE_WITH_ONLY_ONE_EXPLANATION_DIV);
 
     await page.waitForSelector(SELECTORS.EXPLANATION_SECTORS);
 
@@ -109,7 +97,7 @@ describe('Extension loaded with text modification functionality', () => {
       .overridePermissions('https://kbbi.co.id', ['clipboard-read', 'clipboard-write']);
 
     const page = await browser!.newPage();
-    await page.goto(TARGET_DICT_PAGE);
+    await page.goto(PAGE_WITH_ONLY_ONE_EXPLANATION_DIV);
 
     await page.bringToFront();
 
@@ -147,8 +135,7 @@ describe('Extension loaded with text modification functionality', () => {
 
   test('search button should exist on the page', async () => {
     const page = await browser!.newPage();
-    // TODO: rename the var
-    await page.goto(TARGET_DICT_PAGE);
+    await page.goto(PAGE_WITH_ONLY_ONE_EXPLANATION_DIV);
 
     const searchButton = await page.$(SELECTORS.SEARCH_BTN);
 
@@ -159,7 +146,7 @@ describe('Extension loaded with text modification functionality', () => {
 
   test('button for capturing text should exist on the page', async () => {
     const page = await browser!.newPage();
-    await page.goto(TARGET_DICT_PAGE);
+    await page.goto(PAGE_WITH_ONLY_ONE_EXPLANATION_DIV);
 
     const buttonId = '#' + SELECTORS.ID_BTN_FOR_ALL_EXPLANAION;
 
@@ -173,12 +160,7 @@ describe('Extension loaded with text modification functionality', () => {
       .overridePermissions('https://kbbi.co.id', ['clipboard-read', 'clipboard-write']);
 
     const page = await browser!.newPage();
-    await page.goto(TARGET_DICT_PAGE);
-
-    // TODO: seems no need bring to front.
-    // await page.bringToFront();
-
-    // await page.waitForFunction(`document.querySelector(${SELECTORS.MAIN_EXPLANATION}).textContent.length > 0`);
+    await page.goto(PAGE_WITH_ONLY_ONE_EXPLANATION_DIV);
 
     await page.waitForFunction(
       (selector) => {
@@ -197,16 +179,9 @@ describe('Extension loaded with text modification functionality', () => {
     expect(capturedText).toBeDefined();
     expect(typeof capturedText).toBe('string');
 
-    // TODO: these texts might change, need to implement local server without depending on the actually going to the real time page.
     const explanationInTheMiddle = 'melakukan permainan untuk menyenangkan hati';
 
     const endPartOfExplanation = 'teman sejak kecil';
-
-    // expect(capturedText).toContain(explanationInTheMiddle);
-    // expect(capturedText).toContain(endPartOfExplanation);
-
-    // TODO: figure why get `Write permission denied`.
-    // await page.evaluate(() => navigator.clipboard.writeText(''));
 
     await clearClipboard(page);
 
@@ -226,10 +201,6 @@ describe('Extension loaded with text modification functionality', () => {
 
     const page = await browser!.newPage();
     await page.goto(PAGE_WITH_MUTIPLE_EXLANATION_DIV);
-
-    // TODO: seems no need bring to front.
-    // await page.bringToFront();
-    // await page.evaluate(() => navigator.clipboard.writeText(''));
 
     const allExplanationsText = await page.$$eval(SELECTORS.EXPLANATION_SECTORS, (elements) => {
       return elements.map((el) => (el.textContent ? el.textContent.trim() : '')).join('\n\n');
@@ -254,35 +225,4 @@ describe('Extension loaded with text modification functionality', () => {
     expect(copiedText).toContain(explanationInTheMiddle);
     expect(copiedText).toContain(endPartOfExplanation);
   });
-
-  // TODO: User Feedback: Test if there's appropriate user feedback (like a confirmation message) after the text is captured.
 });
-
-// FIXME: this test is wrongly designed.  The targets won't contain service_worker
-// it contains something like this
-// [
-//   OtherTarget {
-//     _initializedDeferred: Deferred {},
-//     _isClosedDeferred: Deferred {},
-//     _targetId: '8d82baa3-b613-4ac4-92a3-94f79c5caa26'
-//   },
-//   PageTarget {
-//     _initializedDeferred: Deferred {},
-//     _isClosedDeferred: Deferred {},
-//     _targetId: 'C70E26BFA83EEDEE5A7075E74A013F2A',
-//     pagePromise: undefined
-//   }
-// ]
-// test('service worker is active', async () => {
-//   const targets = browser!.targets();
-
-//   console.log(targets);
-
-//   const serviceWorkerTarget = targets.find(
-//     (target) => target.type() === 'service_worker'
-//     //   no need for this step now
-//     // && target.url().includes('your-extension-identifier')
-//   );
-
-//   expect(serviceWorkerTarget).toBeDefined();
-// });

@@ -23,16 +23,6 @@ module.exports = {
           },
         ],
       },
-
-      // TODO: maybe no need
-      {
-        test: /\.css$/,
-        use: ['style-loader', 'css-loader'],
-      },
-      {
-        test: /\.html$/,
-        use: ['html-loader'],
-      },
     ],
   },
   resolve: {

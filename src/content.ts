@@ -66,11 +66,7 @@ function convertSelectedTextToPromptForTranslation(
   return modifiedText;
 }
 
-// TODO: not yet done
 const addCaptureAllBtn = () => {
-  // /  BTN_FOR_ALL_EXPLANAION : '#capture-all-btn'
-
-  // TODO: maybe in the above parent, not this layer
   const btnParent = document.querySelector(SELECTORS.BTN_PARENT_ELEMENT);
   if (!btnParent) return;
 
@@ -79,23 +75,19 @@ const addCaptureAllBtn = () => {
   button.className = 'btn btn-default';
   button.id = SELECTORS.ID_BTN_FOR_ALL_EXPLANAION;
 
-  // 創建一個 div 容器
   const buttonContainer = document.createElement('div');
   buttonContainer.appendChild(button);
-  // TODO: proved no need, think why
-  // buttonContainer.style.cssText = 'float: right; margin-left: 10px;';
 
-  // 尋找 BTN_PARENT_ELEMENT 指定的元素
+
   const parentElement = document.querySelector(SELECTORS.BTN_PARENT_ELEMENT);
 
-  // 將 div 容器插入到 parentElement 的後面
   if (parentElement) {
     parentElement.insertAdjacentElement('afterend', buttonContainer);
   }
 
-  // Add event listener or other logic for the button
   button.addEventListener('click', () => {
-    // Logic when button is clicked
+    // TODO: remove after test
+    // actual logic here
     console.log(`btn works`);
   });
 };
