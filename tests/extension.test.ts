@@ -11,6 +11,8 @@ const prefix = '幫我用臺灣使用的繁體中文翻譯以下內容\n';
 
 const TARGET_DICT_PAGE = 'https://kbbi.co.id/arti-kata/main';
 
+const PAGE_WITH_MUTIPLE_EXLANATION_DIV = 'https://kbbi.co.id/arti-kata/kasih';
+
 async function takeScreenshotForTest(testName: string, page: Page): Promise<void> {
   const screenshotsDir = './screenshots';
   if (!fs.existsSync(screenshotsDir)) {
@@ -137,7 +139,7 @@ describe('Extension loaded with text modification functionality', () => {
     expect(captureAllButton).not.toBeNull();
   });
 
-  test('clicking the capture button should retrieve the full text from MAIN_EXPLANATION', async () => {
+  test('clicking the capture button should retrieve the only explanation div full text', async () => {
     const page = await browser!.newPage();
     await page.goto(TARGET_DICT_PAGE);
 
@@ -167,8 +169,40 @@ describe('Extension loaded with text modification functionality', () => {
 
     const endPartOfExplanation = 'teman sejak kecil';
 
-    expect(capturedText).toContain(explanationInTheMiddle);
-    expect(capturedText).toContain(endPartOfExplanation);
+    // expect(capturedText).toContain(explanationInTheMiddle);
+    // expect(capturedText).toContain(endPartOfExplanation);
+
+    await page.click(SELECTORS.ID_BTN_FOR_ALL_EXPLANAION);
+
+    const copiedText = await page.evaluate(() => navigator.clipboard.readText());
+
+    expect(copiedText).toContain(explanationInTheMiddle);
+    expect(copiedText).toContain(endPartOfExplanation);
+  });
+
+  test('clicking the capture button should retrieve all explanations div text from the page', async () => {
+    const page = await browser!.newPage();
+    await page.goto(PAGE_WITH_MUTIPLE_EXLANATION_DIV);
+
+    const allExplanationsText = await page.$$eval(SELECTORS.EXPLANATION_SECTORS, (elements) => {
+      return elements.map((el) => (el.textContent ? el.textContent.trim() : '')).join('\n\n');
+    });
+
+    expect(allExplanationsText).toBeDefined();
+    expect(typeof allExplanationsText).toBe('string');
+
+    const explanationInTheMiddle = 'saling mengasihi; saling';
+    const endPartOfExplanation = 'Ibu adalah ~ kakakku';
+
+    // expect(allExplanationsText).toContain(explanationInTheMiddle);
+    // expect(allExplanationsText).toContain(endPartOfExplanation);
+
+    await page.click(SELECTORS.ID_BTN_FOR_ALL_EXPLANAION);
+
+    const copiedText = await page.evaluate(() => navigator.clipboard.readText());
+
+    expect(copiedText).toContain(explanationInTheMiddle);
+    expect(copiedText).toContain(endPartOfExplanation);
   });
 
   // TODO: User Feedback: Test if there's appropriate user feedback (like a confirmation message) after the text is captured.
