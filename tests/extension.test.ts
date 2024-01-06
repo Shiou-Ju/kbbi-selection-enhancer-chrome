@@ -25,10 +25,30 @@ async function takeScreenshotForTest(testName: string, page: Page): Promise<void
   await page.screenshot({ path: screenshotPath });
 }
 
+/**
+ * 嘗試透過 clipboardy 來清空，但是需要 node 的環境
+ * 接著嘗試使用 jest-clipboard 清空，但遭遇到 transformIgnorePatterns 以及 babel.config.js 設置後，仍然無法運作的問題
+ */
+async function clearClipboard(page: Page) {
+  await page.evaluate(() => {
+    // 清除任何現有的選擇
+    const selection = document.getSelection();
+    if (selection) {
+      selection.removeAllRanges();
+    }
+
+    // 嘗試複製空內容到剪貼簿
+    document.execCommand('copy');
+  });
+}
+
 describe('Extension loaded with text modification functionality', () => {
   let browser: Browser | null;
 
   beforeEach(async () => {
+    // TODO: clear text in clipboard here
+    // use clear clip board function instead now
+
     browser = await puppeteer.launch({
       headless: false,
 
@@ -41,6 +61,13 @@ describe('Extension loaded with text modification functionality', () => {
         // '--enable-automation',
       ],
     });
+
+    // TODO: maybe remove
+    // const page = await browser.newPage();
+    // await page.goto('about:blank'); // 轉到空白頁面
+    // await page.bringToFront(); // 確保頁面獲得焦點
+    // await page.evaluate(() => navigator.clipboard.writeText('')); // 清空剪貼簿
+    // await page.close(); // 關閉頁面
   });
 
   // recommended by chrome:
@@ -120,6 +147,7 @@ describe('Extension loaded with text modification functionality', () => {
 
   test('search button should exist on the page', async () => {
     const page = await browser!.newPage();
+    // TODO: rename the var
     await page.goto(TARGET_DICT_PAGE);
 
     const searchButton = await page.$(SELECTORS.SEARCH_BTN);
@@ -140,10 +168,15 @@ describe('Extension loaded with text modification functionality', () => {
   });
 
   test('clicking the capture button should retrieve the only explanation div full text', async () => {
+    await browser!
+      .defaultBrowserContext()
+      .overridePermissions('https://kbbi.co.id', ['clipboard-read', 'clipboard-write']);
+
     const page = await browser!.newPage();
     await page.goto(TARGET_DICT_PAGE);
 
-    await page.click(SELECTORS.ID_BTN_FOR_ALL_EXPLANAION);
+    // TODO: seems no need bring to front.
+    // await page.bringToFront();
 
     // await page.waitForFunction(`document.querySelector(${SELECTORS.MAIN_EXPLANATION}).textContent.length > 0`);
 
@@ -156,10 +189,10 @@ describe('Extension loaded with text modification functionality', () => {
       SELECTORS.EXPLANATION_SECTORS
     );
 
-    const capturedText = await page.evaluate(() => {
-      const text = document.querySelector(SELECTORS.EXPLANATION_SECTORS)?.textContent;
+    const capturedText = await page.evaluate((explanation) => {
+      const text = document.querySelector(explanation)?.textContent;
       return text;
-    });
+    }, SELECTORS.EXPLANATION_SECTORS);
 
     expect(capturedText).toBeDefined();
     expect(typeof capturedText).toBe('string');
@@ -172,7 +205,13 @@ describe('Extension loaded with text modification functionality', () => {
     // expect(capturedText).toContain(explanationInTheMiddle);
     // expect(capturedText).toContain(endPartOfExplanation);
 
-    await page.click(SELECTORS.ID_BTN_FOR_ALL_EXPLANAION);
+    // TODO: figure why get `Write permission denied`.
+    // await page.evaluate(() => navigator.clipboard.writeText(''));
+
+    await clearClipboard(page);
+
+    const btnById = '#' + SELECTORS.ID_BTN_FOR_ALL_EXPLANAION;
+    await page.click(btnById);
 
     const copiedText = await page.evaluate(() => navigator.clipboard.readText());
 
@@ -181,8 +220,16 @@ describe('Extension loaded with text modification functionality', () => {
   });
 
   test('clicking the capture button should retrieve all explanations div text from the page', async () => {
+    await browser!
+      .defaultBrowserContext()
+      .overridePermissions('https://kbbi.co.id', ['clipboard-read', 'clipboard-write']);
+
     const page = await browser!.newPage();
     await page.goto(PAGE_WITH_MUTIPLE_EXLANATION_DIV);
+
+    // TODO: seems no need bring to front.
+    // await page.bringToFront();
+    // await page.evaluate(() => navigator.clipboard.writeText(''));
 
     const allExplanationsText = await page.$$eval(SELECTORS.EXPLANATION_SECTORS, (elements) => {
       return elements.map((el) => (el.textContent ? el.textContent.trim() : '')).join('\n\n');
@@ -194,10 +241,13 @@ describe('Extension loaded with text modification functionality', () => {
     const explanationInTheMiddle = 'saling mengasihi; saling';
     const endPartOfExplanation = 'Ibu adalah ~ kakakku';
 
+    await clearClipboard(page);
+
     // expect(allExplanationsText).toContain(explanationInTheMiddle);
     // expect(allExplanationsText).toContain(endPartOfExplanation);
 
-    await page.click(SELECTORS.ID_BTN_FOR_ALL_EXPLANAION);
+    const btnById = '#' + SELECTORS.ID_BTN_FOR_ALL_EXPLANAION;
+    await page.click(btnById);
 
     const copiedText = await page.evaluate(() => navigator.clipboard.readText());
 
