@@ -7,7 +7,7 @@
   "main": "index.js",
   "scripts": {
     "format": "prettier --write \"**/*.{ts,js,json}\"",
-    "test": "yarn build && PUPPETEER_DISABLE_HEADLESS_WARNING=true  jest --verbose",
+    "test": "yarn build && PUPPETEER_DISABLE_HEADLESS_WARNING=true  jest --verbose  --coverage",
     "build-legacy": "rm -rf dist && tsc && cp manifest.json dist/ && cp -r icons dist/",
     "build": "rm -rf dist && webpack --mode production && cp manifest.json dist/ && cp -r icons dist/"
   },

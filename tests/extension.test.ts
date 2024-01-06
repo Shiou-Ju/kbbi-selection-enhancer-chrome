@@ -54,7 +54,7 @@ describe('Extension loaded with text modification functionality', () => {
     const page = await browser!.newPage();
     await page.goto(TARGET_DICT_PAGE);
 
-    const text = await page.$eval(SELECTORS.MAIN_EXPLANATION, (el: Element) => el.textContent);
+    const text = await page.$eval(SELECTORS.EXPLANATION_SECTORS, (el: Element) => el.textContent);
 
     expect(text).toMatch(TEXT_REGEX);
   });
@@ -63,7 +63,7 @@ describe('Extension loaded with text modification functionality', () => {
     const page = await browser!.newPage();
     await page.goto(TARGET_DICT_PAGE);
 
-    await page.waitForSelector(SELECTORS.MAIN_EXPLANATION);
+    await page.waitForSelector(SELECTORS.EXPLANATION_SECTORS);
 
     const isSelectionAvailable = await page.evaluate(() => {
       const selection = document.getSelection();
@@ -106,7 +106,7 @@ describe('Extension loaded with text modification functionality', () => {
       selection!.removeAllRanges();
       selection!.addRange(range);
       document.execCommand('copy');
-    }, SELECTORS.MAIN_EXPLANATION);
+    }, SELECTORS.EXPLANATION_SECTORS);
 
     const copiedText = await page.evaluate(() => navigator.clipboard.readText());
 
@@ -151,11 +151,11 @@ describe('Extension loaded with text modification functionality', () => {
         return element && element.textContent && element.textContent.length > 0;
       },
       {},
-      SELECTORS.MAIN_EXPLANATION
+      SELECTORS.EXPLANATION_SECTORS
     );
 
     const capturedText = await page.evaluate(() => {
-      const text = document.querySelector(SELECTORS.MAIN_EXPLANATION)?.textContent;
+      const text = document.querySelector(SELECTORS.EXPLANATION_SECTORS)?.textContent;
       return text;
     });
 
