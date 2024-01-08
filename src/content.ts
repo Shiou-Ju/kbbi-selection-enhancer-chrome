@@ -40,7 +40,7 @@ function ensureTempDiv(id: string, text: string) {
   }
 
   tempDiv.textContent = text;
-  
+
   return tempDiv;
 }
 
@@ -87,7 +87,10 @@ const addCaptureAllBtn = () => {
   if (!btnParent) return;
 
   const button = document.createElement('button');
-  button.innerHTML = '<i class="glyphicon glyphicon-search"></i>';
+
+  const originalText = 'Copy all explanation';
+
+  button.textContent = originalText;
   button.className = 'btn btn-default';
   button.id = SELECTORS.ID_BTN_FOR_ALL_EXPLANAION;
 
@@ -125,6 +128,12 @@ const addCaptureAllBtn = () => {
     selection.removeAllRanges();
     selection.addRange(range);
     document.execCommand('copy');
+
+    button.textContent = 'Copied';
+
+    setTimeout(() => {
+      button.textContent = originalText;
+    }, 1000);
   });
 };
 

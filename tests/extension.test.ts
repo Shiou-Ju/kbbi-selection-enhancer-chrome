@@ -13,7 +13,6 @@ const PAGE_WITH_ONLY_ONE_EXPLANATION_DIV = 'https://kbbi.co.id/arti-kata/main';
 
 const PAGE_WITH_MUTIPLE_EXLANATION_DIV = 'https://kbbi.co.id/arti-kata/kasih';
 
-
 async function takeScreenshotForTest(testName: string, page: Page): Promise<void> {
   const screenshotsDir = './screenshots';
   if (!fs.existsSync(screenshotsDir)) {
@@ -241,5 +240,35 @@ describe('Extension loaded with text modification functionality', () => {
 
     expect(copiedText).toContain(explanationInTheMiddle);
     expect(copiedText).toContain(endPartOfExplanation);
+  });
+
+  test('button text should change to "Copied" on click and revert back after 1 second', async () => {
+    await browser!
+      .defaultBrowserContext()
+      .overridePermissions('https://kbbi.co.id', ['clipboard-read', 'clipboard-write']);
+
+    const page = await browser!.newPage();
+    await page.goto(PAGE_WITH_MUTIPLE_EXLANATION_DIV);
+
+    const btnById = '#' + SELECTORS.ID_BTN_FOR_ALL_EXPLANAION;
+
+    await page.waitForSelector(btnById);
+
+    await page.click(btnById);
+
+    let buttonText = await page.$eval(btnById, (el) => el.textContent);
+
+    const temporaryUXText = 'Copied';
+
+    expect(buttonText).toBe(temporaryUXText);
+
+    const timeOutSpan = 1100;
+    await page.waitForTimeout(timeOutSpan);
+
+    buttonText = await page.$eval(btnById, (el) => el.textContent);
+
+    const originalText = 'Copy all explanation';
+
+    expect(buttonText).toBe(originalText);
   });
 });
