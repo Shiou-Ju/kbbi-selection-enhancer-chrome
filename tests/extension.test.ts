@@ -9,6 +9,8 @@ const EXTENSION_PATH = path.join(process.cwd(), 'dist');
 
 const prefix = '幫我用臺灣使用的繁體中文翻譯以下內容\n';
 
+const note = '請[不要]放在 code block 給我，謝謝。';
+
 const PAGE_WITH_ONLY_ONE_EXPLANATION_DIV = 'https://kbbi.co.id/arti-kata/main';
 
 const PAGE_WITH_MUTIPLE_EXLANATION_DIV = 'https://kbbi.co.id/arti-kata/kasih';
@@ -270,5 +272,26 @@ describe('Extension loaded with text modification functionality', () => {
     const originalText = 'Copy all explanation';
 
     expect(buttonText).toBe(originalText);
+  });
+
+  test('note should not appear twice in the copied text', async () => {
+    await browser!
+      .defaultBrowserContext()
+      .overridePermissions('https://kbbi.co.id', ['clipboard-read', 'clipboard-write']);
+
+    const page = await browser!.newPage();
+    await page.goto(PAGE_WITH_MUTIPLE_EXLANATION_DIV);
+
+    const btnById = '#' + SELECTORS.ID_BTN_FOR_ALL_EXPLANAION;
+
+    await page.waitForSelector(btnById);
+
+    await page.click(btnById);
+
+    const copiedText = await page.evaluate(() => navigator.clipboard.readText());
+
+    const titleOccurrences = copiedText.split(note).length - 1;
+
+    expect(titleOccurrences).toBe(1);
   });
 });

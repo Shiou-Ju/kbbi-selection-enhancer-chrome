@@ -77,6 +77,7 @@ function convertSelectedTextToPromptForTranslation(
 
   const selectedText = selection.toString();
   const wrappedSelected = '```\n' + selectedText + '\n```';
+
   const modifiedText = promptTitle + wrappedSelected + exampleTranslation + note;
 
   return modifiedText;
@@ -110,14 +111,7 @@ const addCaptureAllBtn = () => {
       .map((el) => (el.textContent ? el.textContent.trim() : ''))
       .join('\n\n');
 
-    const modifiedText = convertSelectedTextToPromptForTranslation(
-      allExplanationsText,
-      promptTitle,
-      exampleTranslation,
-      note
-    );
-
-    const tempDiv = ensureTempDiv('tempClipboardContent', modifiedText);
+    const tempDiv = ensureTempDiv('tempClipboardContent', allExplanationsText);
 
     const range = document.createRange();
     range.selectNodeContents(tempDiv);
