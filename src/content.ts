@@ -28,6 +28,22 @@ const exampleTranslation =
 
 const note = '請[不要]放在 code block 給我，謝謝。';
 
+function ensureTempDiv(id: string, text: string) {
+  let tempDiv = document.getElementById(id);
+
+  if (!tempDiv) {
+    tempDiv = document.createElement('div');
+    tempDiv.id = id;
+    tempDiv.style.position = 'absolute';
+    tempDiv.style.left = '-9999px';
+    document.body.appendChild(tempDiv);
+  }
+
+  tempDiv.textContent = text;
+  
+  return tempDiv;
+}
+
 const addCopyModification = () => {
   document.addEventListener('copy', (event) => {
     const selection = document.getSelection();
@@ -85,9 +101,6 @@ const addCaptureAllBtn = () => {
   }
 
   button.addEventListener('click', async () => {
-    // TODO: remove after test
-    // actual logic here
-
     const explanationElements = document.querySelectorAll(SELECTORS.EXPLANATION_SECTORS);
 
     const allExplanationsText = Array.from(explanationElements)
@@ -101,9 +114,17 @@ const addCaptureAllBtn = () => {
       note
     );
 
-    // TODO: modify implementation
-    // Works, but can not be tested.
-    await navigator.clipboard.writeText(modifiedText);
+    const tempDiv = ensureTempDiv('tempClipboardContent', modifiedText);
+
+    const range = document.createRange();
+    range.selectNodeContents(tempDiv);
+    const selection = window.getSelection();
+
+    if (!selection) return;
+
+    selection.removeAllRanges();
+    selection.addRange(range);
+    document.execCommand('copy');
   });
 };
 

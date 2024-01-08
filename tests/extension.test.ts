@@ -13,6 +13,7 @@ const PAGE_WITH_ONLY_ONE_EXPLANATION_DIV = 'https://kbbi.co.id/arti-kata/main';
 
 const PAGE_WITH_MUTIPLE_EXLANATION_DIV = 'https://kbbi.co.id/arti-kata/kasih';
 
+
 async function takeScreenshotForTest(testName: string, page: Page): Promise<void> {
   const screenshotsDir = './screenshots';
   if (!fs.existsSync(screenshotsDir)) {
@@ -99,6 +100,7 @@ describe('Extension loaded with text modification functionality', () => {
     const page = await browser!.newPage();
     await page.goto(PAGE_WITH_ONLY_ONE_EXPLANATION_DIV);
 
+    // this is required to make document focused
     await page.bringToFront();
 
     // await page.evaluate(() => {
@@ -196,8 +198,8 @@ describe('Extension loaded with text modification functionality', () => {
 
     expect(capturedText).toBeDefined();
     expect(typeof capturedText).toBe('string');
-    expect(capturedText).toContain(explanationInTheMiddle)
-    expect(capturedText).toContain(endPartOfExplanation)
+    expect(capturedText).toContain(explanationInTheMiddle);
+    expect(capturedText).toContain(endPartOfExplanation);
 
     await clearClipboard(page);
 
