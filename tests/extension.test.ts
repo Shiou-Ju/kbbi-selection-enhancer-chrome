@@ -154,6 +154,16 @@ describe('Extension loaded with text modification functionality', () => {
     expect(captureAllButton).not.toBeNull();
   });
 
+  test('button of wrong id should NOT exist on the page', async () => {
+    const page = await browser!.newPage();
+    await page.goto(PAGE_WITH_ONLY_ONE_EXPLANATION_DIV);
+
+    const wrongButtonId = SELECTORS.ID_BTN_FOR_ALL_EXPLANAION;
+
+    const captureAllButton = await page.$(wrongButtonId);
+    expect(captureAllButton).toBeNull();
+  });
+
   test('clicking the capture button should retrieve the only explanation div full text', async () => {
     await browser!
       .defaultBrowserContext()
@@ -171,21 +181,26 @@ describe('Extension loaded with text modification functionality', () => {
       SELECTORS.EXPLANATION_SECTORS
     );
 
+    const btnById = '#' + SELECTORS.ID_BTN_FOR_ALL_EXPLANAION;
+
+    await page.waitForSelector(btnById);
+
     const capturedText = await page.evaluate((explanation) => {
       const text = document.querySelector(explanation)?.textContent;
       return text;
     }, SELECTORS.EXPLANATION_SECTORS);
 
-    expect(capturedText).toBeDefined();
-    expect(typeof capturedText).toBe('string');
-
     const explanationInTheMiddle = 'melakukan permainan untuk menyenangkan hati';
 
     const endPartOfExplanation = 'teman sejak kecil';
 
+    expect(capturedText).toBeDefined();
+    expect(typeof capturedText).toBe('string');
+    expect(capturedText).toContain(explanationInTheMiddle)
+    expect(capturedText).toContain(endPartOfExplanation)
+
     await clearClipboard(page);
 
-    const btnById = '#' + SELECTORS.ID_BTN_FOR_ALL_EXPLANAION;
     await page.click(btnById);
 
     const copiedText = await page.evaluate(() => navigator.clipboard.readText());
