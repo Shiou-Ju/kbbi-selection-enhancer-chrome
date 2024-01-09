@@ -129,4 +129,43 @@ describe('Chrome Extension Context Menu Test', () => {
 
     expect(copiedText).toBe('選擇縣市');
   });
+
+  test('new context menu option opens a new tab', async () => {
+    await execAsync(`chmod +x ${__dirname}/select_new_option.py`);
+
+    page = await browser.newPage();
+
+    const textSelector =
+      'body > div.wrapper > main > div > div:nth-child(2) > div.row > div > form > fieldset > div > div:nth-child(1) > div.countryselect-title > label';
+
+    await page.goto('https://www.cwa.gov.tw/V8/C/W/County/County.html?CID=66');
+    await page.waitForSelector(textSelector);
+
+    await selectText(page, textSelector);
+
+    const element = await page.$(textSelector);
+    const boundingBox = await element!.boundingBox();
+
+    if (!boundingBox) throw new Error('not focused');
+
+    const middleHight = boundingBox.x + boundingBox.width / 2;
+    const middleLenth = boundingBox.y + boundingBox.height / 2;
+
+    await page.mouse.click(middleHight, middleLenth, {
+      button: 'right',
+    });
+
+    await page.bringToFront();
+
+    await execAsync(`python ${__dirname}/select_new_option.py`);
+
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+
+    const pages = await browser.pages();
+
+    const originalPageCount = 2;
+    const isTabIncreased = pages.length > originalPageCount;
+
+    expect(isTabIncreased).toBe(true);
+  }, 10000);
 });
