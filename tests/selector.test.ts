@@ -17,13 +17,13 @@ describe.skip('Puppeteer Selector Test', () => {
   });
 
   test('selector should be present', async () => {
-    const element = await page.$(SELECTORS.MAIN_EXPLANATION);
+    const element = await page.$(SELECTORS.EXPLANATION_SECTORS);
     expect(element).not.toBeNull();
   });
 
   test('selector should contain text', async () => {
     // const text = await page.$eval(SELECTORS, (el) => el.textContent);
-    const text = await page.$eval(SELECTORS.MAIN_EXPLANATION, (el: Element) => el.textContent);
+    const text = await page.$eval(SELECTORS.EXPLANATION_SECTORS, (el: Element) => el.textContent);
 
     expect(text).toBeTruthy();
   });
