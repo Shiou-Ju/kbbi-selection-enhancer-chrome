@@ -8,6 +8,11 @@
     "48": "icons/Flag_of_Indonesia.png",
     "128": "icons/Flag_of_Indonesia.png"
   },
+  "permissions": ["contextMenus"],
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
   "content_scripts": [
     {
       "matches": ["https://kbbi.co.id/*"],

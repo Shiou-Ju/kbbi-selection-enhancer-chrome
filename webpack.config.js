@@ -5,6 +5,7 @@ module.exports = (env, argv) => ({
   devtool: argv.mode === 'development' ? 'source-map' : false,
   entry: {
     content: './src/content.ts',
+    background: './src/background.ts',
   },
   output: {
     path: path.resolve(__dirname, 'dist'),

@@ -1,8 +1,11 @@
 import puppeteer, { Browser, Page } from 'puppeteer';
+import path from 'path';
 import { exec } from 'child_process';
 import { promisify } from 'util';
 
 const execAsync = promisify(exec);
+
+const EXTENSION_PATH = path.join(process.cwd(), 'dist');
 
 /**
  * 嘗試透過 clipboardy 來清空，但是沒辦法 compile
@@ -25,7 +28,22 @@ function timeout(ms: number) {
 
 const targetString = 'hello world';
 
-describe('Chrome Extension Context Menu Test', () => {
+async function selectText(page: Page, selector: string) {
+  await page.evaluate((selector) => {
+    const element = document.querySelector(selector);
+    if (!element) throw new Error(`Element not found for selector: ${selector}`);
+
+    const range = document.createRange();
+    range.selectNodeContents(element);
+    const selection = window.getSelection();
+    if (!selection) throw new Error('No selection object available');
+
+    selection.removeAllRanges();
+    selection.addRange(range);
+  }, selector);
+}
+
+describe('Preparation for Chrome Extension Context Menu Test', () => {
   let browser: Browser;
   let page: Page;
 
@@ -43,21 +61,6 @@ describe('Chrome Extension Context Menu Test', () => {
   afterEach(async () => {
     await browser.close();
   });
-
-  async function selectText(page: Page, selector: string) {
-    await page.evaluate((selector) => {
-      const element = document.querySelector(selector);
-      if (!element) throw new Error(`Element not found for selector: ${selector}`);
-
-      const range = document.createRange();
-      range.selectNodeContents(element);
-      const selection = window.getSelection();
-      if (!selection) throw new Error('No selection object available');
-
-      selection.removeAllRanges();
-      selection.addRange(range);
-    }, selector);
-  }
 
   test('the keyboard interaction should be successful with puppeteer browser', async () => {
     try {
@@ -128,6 +131,22 @@ describe('Chrome Extension Context Menu Test', () => {
     });
 
     expect(copiedText).toBe('選擇縣市');
+  });
+});
+
+describe('Extension specific tests', () => {
+  let browser: Browser;
+  let page: Page;
+
+  beforeEach(async () => {
+    browser = await puppeteer.launch({
+      headless: false,
+      args: [`--disable-extensions-except=${EXTENSION_PATH}`, `--load-extension=${EXTENSION_PATH}`],
+    });
+  });
+
+  afterEach(async () => {
+    await browser.close();
   });
 
   test('new context menu option opens a new tab', async () => {
