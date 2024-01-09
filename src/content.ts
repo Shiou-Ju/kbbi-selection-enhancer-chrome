@@ -98,11 +98,7 @@ const addCaptureAllBtn = () => {
   const buttonContainer = document.createElement('div');
   buttonContainer.appendChild(button);
 
-  const parentElement = document.querySelector(SELECTORS.BTN_PARENT_ELEMENT);
-
-  if (parentElement) {
-    parentElement.insertAdjacentElement('afterend', buttonContainer);
-  }
+  btnParent.insertAdjacentElement('afterend', buttonContainer);
 
   button.addEventListener('click', async () => {
     const explanationElements = document.querySelectorAll(SELECTORS.EXPLANATION_SECTORS);

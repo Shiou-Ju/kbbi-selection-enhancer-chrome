@@ -28,7 +28,7 @@ async function takeScreenshotForTest(testName: string, page: Page): Promise<void
 }
 
 /**
- * 嘗試透過 clipboardy 來清空，但是需要 node 的環境
+ * 嘗試透過 clipboardy 來清空，但是沒辦法 compile
  * 接著嘗試使用 jest-clipboard 清空，但遭遇到 transformIgnorePatterns 以及 babel.config.js 設置後，仍然無法運作的問題
  */
 async function clearClipboard(page: Page) {
@@ -264,8 +264,8 @@ describe('Extension loaded with text modification functionality', () => {
 
     expect(buttonText).toBe(temporaryUXText);
 
-    const timeOutSpan = 1100;
-    await page.waitForTimeout(timeOutSpan);
+    const moreThanOneSecond = 1100;
+    await page.waitForTimeout(moreThanOneSecond);
 
     buttonText = await page.$eval(btnById, (el) => el.textContent);
 
