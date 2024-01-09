@@ -1,7 +1,8 @@
 const path = require('path');
 
-module.exports = {
-  mode: 'development',
+module.exports = (env, argv) => ({
+  mode: argv.mode || 'production',
+  devtool: argv.mode === 'development' ? 'source-map' : false,
   entry: {
     content: './src/content.ts',
   },
@@ -28,4 +29,4 @@ module.exports = {
   resolve: {
     extensions: ['.js', '.ts'],
   },
-};
+});

@@ -7,9 +7,10 @@
   "main": "index.js",
   "scripts": {
     "format": "prettier --write \"**/*.{ts,js,json}\"",
-    "test": "yarn build && PUPPETEER_DISABLE_HEADLESS_WARNING=true  jest --verbose  --coverage",
+    "test": "yarn build-dev && PUPPETEER_DISABLE_HEADLESS_WARNING=true  jest --verbose  --coverage",
     "build-legacy": "rm -rf dist && tsc && cp manifest.json dist/ && cp -r icons dist/",
-    "build": "rm -rf dist && webpack --mode production && cp manifest.json dist/ && cp -r icons dist/"
+    "build": "rm -rf dist && webpack --mode production && cp manifest.json dist/ && cp -r icons dist/",
+    "build-dev": "rm -rf dist && webpack --mode development && cp manifest.json dist/ && cp -r icons dist/"
   },
   "devDependencies": {
     "@babel/core": "^7.23.7",
