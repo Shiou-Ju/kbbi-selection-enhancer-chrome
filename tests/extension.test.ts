@@ -247,6 +247,7 @@ describe('Extension loaded with text modification functionality', () => {
 
     const copiedText = await page.evaluate(() => navigator.clipboard.readText());
 
+    expect(copiedText.startsWith(prefix)).toBeTruthy();
     expect(copiedText).toContain(explanationInTheMiddle);
     expect(copiedText).toContain(endPartOfExplanation);
   });
@@ -279,6 +280,7 @@ describe('Extension loaded with text modification functionality', () => {
 
     const copiedText = await page.evaluate(() => navigator.clipboard.readText());
 
+    expect(copiedText.startsWith(prefix)).toBeTruthy();
     expect(copiedText).toContain(explanationInTheMiddle);
     expect(copiedText).toContain(endPartOfExplanation);
   });
@@ -328,6 +330,8 @@ describe('Extension loaded with text modification functionality', () => {
     await page.click(btnById);
 
     const copiedText = await page.evaluate(() => navigator.clipboard.readText());
+
+    expect(copiedText.startsWith(prefix)).toBeTruthy();
 
     const titleOccurrences = copiedText.split(note).length - 1;
 
