@@ -2,6 +2,7 @@ import puppeteer, { Browser, Page } from 'puppeteer';
 import path from 'path';
 import * as fs from 'fs';
 import { SELECTORS } from '../utils/selectors';
+import execAsync from './utils/execAsync';
 
 const TEXT_REGEX = /ma·in/;
 
@@ -93,7 +94,7 @@ describe('Extension loaded with text modification functionality', () => {
     expect(isSelectionAvailable).toBeTruthy();
   });
 
-  test('text content should start with "ma·in" and target prefix', async () => {
+  test('keyboard copied should start with "ma·in" and target prefix', async () => {
     await browser!
       .defaultBrowserContext()
       .overridePermissions('https://kbbi.co.id', ['clipboard-read', 'clipboard-write']);
@@ -101,20 +102,7 @@ describe('Extension loaded with text modification functionality', () => {
     const page = await browser!.newPage();
     await page.goto(PAGE_WITH_ONLY_ONE_EXPLANATION_DIV);
 
-    // this is required to make document focused
     await page.bringToFront();
-
-    // await page.evaluate(() => {
-    //   const selection = document.getSelection();
-    //   const range = document.createRange();
-    //   const element = document.querySelector(SELECTORS.MAIN_EXPLANATION);
-
-    //   range.selectNodeContents(element!);
-
-    //   selection!.removeAllRanges();
-    //   selection!.addRange(range);
-    //   document.execCommand('copy');
-    // });
 
     await page.evaluate((mainExplanationSelector) => {
       const selection = document.getSelection();
@@ -128,6 +116,8 @@ describe('Extension loaded with text modification functionality', () => {
       document.execCommand('copy');
     }, SELECTORS.EXPLANATION_SECTORS);
 
+    await execAsync(`python ${__dirname}/scripts/simulate_keyboard_copy.py`);
+
     const copiedText = await page.evaluate(() => navigator.clipboard.readText());
 
     expect(copiedText.startsWith(prefix)).toBeTruthy();
@@ -135,7 +125,6 @@ describe('Extension loaded with text modification functionality', () => {
   });
 
   // tests for one-click capture btn
-
   test('search button should exist on the page', async () => {
     const page = await browser!.newPage();
     await page.goto(PAGE_WITH_ONLY_ONE_EXPLANATION_DIV);
