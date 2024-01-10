@@ -22,11 +22,9 @@ export async function clearClipboard(page: Page) {
   });
 }
 
-function timeout(ms: number) {
+function pause(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
-
-const targetString = 'hello world';
 
 async function selectText(page: Page, selector: string) {
   await page.evaluate((selector) => {
@@ -50,11 +48,6 @@ describe('Preparation for Chrome Extension Context Menu Tests', () => {
   beforeEach(async () => {
     browser = await puppeteer.launch({
       headless: false,
-      args: [
-        // for pyautogui
-        // '--window-size=800,600', // Set the window size
-        // '--window-position=0,0', // Set the window position
-      ],
     });
   });
 
@@ -74,11 +67,11 @@ describe('Preparation for Chrome Extension Context Menu Tests', () => {
 
       await page.evaluate(() => document.getElementById('testInput')!.focus());
 
-      await execAsync(`python ${__dirname}/scripts/type_text.py "${targetString}"`);
+      const exampleStringToBeAumatedEnter = 'hello world';
 
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      await execAsync(`python ${__dirname}/scripts/type_text.py "${exampleStringToBeAumatedEnter}"`);
 
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      await pause(2000);
     } catch (error) {
       console.error(`Error occurred: ${error}`);
       throw error;
@@ -124,7 +117,7 @@ describe('Preparation for Chrome Extension Context Menu Tests', () => {
 
     await execAsync(`python ${__dirname}/scripts/choose_copy_context_menu.py`);
 
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    await pause(1000);
 
     clearClipboard(page);
 
@@ -180,7 +173,7 @@ describe('Extension Specific', () => {
 
     await execAsync(`python ${__dirname}/scripts/select_new_option.py`);
 
-    await new Promise((resolve) => setTimeout(resolve, 2000));
+    await pause(2000);
 
     const pages = await browser.pages();
 
@@ -216,7 +209,7 @@ describe('Extension Specific', () => {
 
     await execAsync(`python ${__dirname}/scripts/select_new_option_in_wikipidia.py`);
 
-    await new Promise((resolve) => setTimeout(resolve, 3000));
+    await pause(3000);
 
     const pages = await browser.pages();
     expect(pages.length).toBeGreaterThan(2);
