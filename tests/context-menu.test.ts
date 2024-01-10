@@ -26,6 +26,23 @@ export async function clearClipboard(page: Page) {
   });
 }
 
+async function rightClickOnElement(page:Page, selector:string) {
+  const element = await page.$(selector);
+
+  if (!element) throw new Error('no such element')
+
+  const boundingBox = await element.boundingBox();
+
+  if (!boundingBox) throw new Error('Element not focused');
+
+  const middleHeight = boundingBox.x + boundingBox.width / 2;
+  const middleLength = boundingBox.y + boundingBox.height / 2;
+
+  await page.mouse.click(middleHeight, middleLength, {
+    button: 'right',
+  });
+}
+
 function pause(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
@@ -107,17 +124,8 @@ describe('Chrome Browser Context Menu Tests', () => {
 
     await selectText(page, textSelector);
 
-    const element = await page.$(textSelector);
-    const boundingBox = await element!.boundingBox();
 
-    if (!boundingBox) throw new Error('not focused');
-
-    const middleHight = boundingBox.x + boundingBox.width / 2;
-    const middleLenth = boundingBox.y + boundingBox.height / 2;
-
-    await page.mouse.click(middleHight, middleLenth, {
-      button: 'right',
-    });
+    await rightClickOnElement(page, textSelector);
 
     page.bringToFront();
 
@@ -163,17 +171,7 @@ describe('KBBI Extension Specific', () => {
 
     await selectText(page, textSelector);
 
-    const element = await page.$(textSelector);
-    const boundingBox = await element!.boundingBox();
-
-    if (!boundingBox) throw new Error('not focused');
-
-    const middleHight = boundingBox.x + boundingBox.width / 2;
-    const middleLenth = boundingBox.y + boundingBox.height / 2;
-
-    await page.mouse.click(middleHight, middleLenth, {
-      button: 'right',
-    });
+    await rightClickOnElement(page, textSelector);
 
     await page.bringToFront();
 
@@ -199,17 +197,7 @@ describe('KBBI Extension Specific', () => {
 
     await selectText(page, textSelector);
 
-    const element = await page.$(textSelector);
-    const boundingBox = await element!.boundingBox();
-
-    if (!boundingBox) throw new Error('not focused');
-
-    const middleHight = boundingBox.x + boundingBox.width / 2;
-    const middleLenth = boundingBox.y + boundingBox.height / 2;
-
-    await page.mouse.click(middleHight, middleLenth, {
-      button: 'right',
-    });
+    await rightClickOnElement(page, textSelector);
 
     page.bringToFront();
 
