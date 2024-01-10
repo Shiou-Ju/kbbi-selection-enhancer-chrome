@@ -3,7 +3,7 @@ Simplify working flow learning Indonesian using https://kbbi.co.id/
 
 ## Requirements
 1. Python 3.8
-2. Permission for `pyautogui` to perfrom (i.e. masos control panel accessibility)
+2. Permission for `pyautogui` to perfrom (eg. masos control panel accessibility)
 
 
 ## TDD 開發步驟

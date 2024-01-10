@@ -1,4 +1,4 @@
-# if the code does not work, open the System Preferences > Security & Privacy > Privacy tab.
+# if the code does not work, take macos for example, open the System Preferences > Security & Privacy > Privacy tab.
 # turn on permission for the terminal app, and execute this try to see if spotlight is open
 # pyautogui.hotkey('command', 'space', interval=0.1)
 
