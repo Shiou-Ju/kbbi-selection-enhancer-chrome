@@ -7,6 +7,10 @@ const execAsync = promisify(exec);
 
 const EXTENSION_PATH = path.join(process.cwd(), 'dist');
 
+const LOCAL_WEATHER_URL = 'https://www.cwa.gov.tw/V8/C/W/County/County.html?CID=66';
+
+const WIKI_BAHAGIA_PAGE_URL = 'https://en.wiktionary.org/wiki/bahagia';
+
 /**
  * 嘗試透過 clipboardy 來清空，但是沒辦法 compile
  * 接著嘗試使用 jest-clipboard 清空，但遭遇到 transformIgnorePatterns 以及 babel.config.js 設置後，仍然無法運作的問題
@@ -41,7 +45,7 @@ async function selectText(page: Page, selector: string) {
   }, selector);
 }
 
-describe('Preparation for Chrome Extension Context Menu Tests', () => {
+describe('Chrome Browser Context Menu Tests', () => {
   let browser: Browser;
   let page: Page;
 
@@ -81,7 +85,9 @@ describe('Preparation for Chrome Extension Context Menu Tests', () => {
 
     const insertionNoMatterWhichLanguage = inputValue.length;
 
-    expect(insertionNoMatterWhichLanguage).toBeGreaterThan(5);
+    const lengthOfHello = 5;
+
+    expect(insertionNoMatterWhichLanguage).toBeGreaterThan(lengthOfHello);
   }, 10000);
 
   test('the second option should copy text', async () => {
@@ -96,7 +102,7 @@ describe('Preparation for Chrome Extension Context Menu Tests', () => {
     const textSelector =
       'body > div.wrapper > main > div > div:nth-child(2) > div.row > div > form > fieldset > div > div:nth-child(1) > div.countryselect-title > label';
 
-    await page.goto('https://www.cwa.gov.tw/V8/C/W/County/County.html?CID=66');
+    await page.goto(LOCAL_WEATHER_URL);
     await page.waitForSelector(textSelector);
 
     await selectText(page, textSelector);
@@ -129,7 +135,7 @@ describe('Preparation for Chrome Extension Context Menu Tests', () => {
   });
 });
 
-describe('Extension Specific', () => {
+describe('KBBI Extension Specific', () => {
   let browser: Browser;
   let page: Page;
 
@@ -152,7 +158,7 @@ describe('Extension Specific', () => {
     const textSelector =
       'body > div.wrapper > main > div > div:nth-child(2) > div.row > div > form > fieldset > div > div:nth-child(1) > div.countryselect-title > label';
 
-    await page.goto('https://www.cwa.gov.tw/V8/C/W/County/County.html?CID=66');
+    await page.goto(LOCAL_WEATHER_URL);
     await page.waitForSelector(textSelector);
 
     await selectText(page, textSelector);
@@ -186,7 +192,7 @@ describe('Extension Specific', () => {
   test('Context menu option opens new tab with specific URL and content', async () => {
     page = await browser.newPage();
 
-    await page.goto('https://en.wiktionary.org/wiki/bahagia');
+    await page.goto(WIKI_BAHAGIA_PAGE_URL);
 
     const textSelector = '#firstHeading > span';
     await page.waitForSelector(textSelector);
@@ -212,14 +218,20 @@ describe('Extension Specific', () => {
     await pause(3000);
 
     const pages = await browser.pages();
-    expect(pages.length).toBeGreaterThan(2);
+
+    const countExcludingNewPage = 2;
+
+    expect(pages.length).toBeGreaterThan(countExcludingNewPage);
 
     const lastOpenedPage = pages.length - 1;
     const newTab = pages[lastOpenedPage];
     await newTab.bringToFront();
 
     const url = newTab.url();
-    expect(url).toMatch(new RegExp(`https://kbbi.co.id/cari\\?kata=bahagia`));
+
+    const searchResultUrlRegex = new RegExp('https://kbbi.co.id/cari\\?kata=bahagia');
+
+    expect(url).toMatch(searchResultUrlRegex);
 
     const searchResultCountSelector = '#main > div > div.col-sm-9 > div > p:nth-child(4)';
     await newTab.waitForSelector(searchResultCountSelector, { visible: true });
