@@ -1,5 +1,9 @@
 import { SELECTORS } from '../utils/selectors';
 
+let isCmdCtrlPressed = false;
+let isCPressed = false;
+let canCopyTextBeModified = false;
+
 const promptTitle = '幫我用臺灣使用的繁體中文翻譯以下內容\n';
 
 const exampleTranslation =
@@ -28,6 +32,28 @@ const exampleTranslation =
 
 const note = '請[不要]放在 code block 給我，謝謝。';
 
+function handleKeyDown(event: KeyboardEvent) {
+  if (event.key === 'Control' || event.key === 'Meta') {
+    isCmdCtrlPressed = true;
+  } else if (event.key === 'c' || event.key === 'C') {
+    isCPressed = true;
+  }
+
+  if (isCmdCtrlPressed && isCPressed) {
+    canCopyTextBeModified = true;
+  }
+}
+
+function handleKeyUp(event: KeyboardEvent) {
+  if (event.key === 'Control' || event.key === 'Meta') {
+    isCmdCtrlPressed = false;
+    canCopyTextBeModified = false;
+  } else if (event.key === 'c' || event.key === 'C') {
+    isCPressed = false;
+    canCopyTextBeModified = false;
+  }
+}
+
 function ensureTempDiv(id: string, text: string) {
   let tempDiv = document.getElementById(id);
 
@@ -46,6 +72,8 @@ function ensureTempDiv(id: string, text: string) {
 
 const addCopyModification = () => {
   document.addEventListener('copy', (event) => {
+    if (!canCopyTextBeModified) return;
+
     const selection = document.getSelection();
 
     if (!selection) {
@@ -61,6 +89,8 @@ const addCopyModification = () => {
     }
 
     event.clipboardData.setData('text/plain', modifiedText);
+
+    canCopyTextBeModified = false;
     event.preventDefault();
   });
 };
@@ -117,7 +147,10 @@ const addCaptureAllBtn = () => {
 
     selection.removeAllRanges();
     selection.addRange(range);
+
+    canCopyTextBeModified = true;
     document.execCommand('copy');
+    canCopyTextBeModified = false;
 
     button.textContent = 'Copied';
 
@@ -126,6 +159,9 @@ const addCaptureAllBtn = () => {
     }, 1000);
   });
 };
+
+document.addEventListener('keydown', handleKeyDown);
+document.addEventListener('keyup', handleKeyUp);
 
 addCopyModification();
 addCaptureAllBtn();
