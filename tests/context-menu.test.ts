@@ -43,7 +43,7 @@ async function selectText(page: Page, selector: string) {
   }, selector);
 }
 
-describe('Preparation for Chrome Extension Context Menu Test', () => {
+describe('Preparation for Chrome Extension Context Menu Tests', () => {
   let browser: Browser;
   let page: Page;
 
@@ -136,7 +136,7 @@ describe('Preparation for Chrome Extension Context Menu Test', () => {
   });
 });
 
-describe('Extension specific tests', () => {
+describe('Extension Specific', () => {
   let browser: Browser;
   let page: Page;
 
@@ -189,4 +189,49 @@ describe('Extension specific tests', () => {
 
     expect(isTabIncreased).toBe(true);
   }, 10000);
+
+  test('Context menu option opens new tab with specific URL and content', async () => {
+    page = await browser.newPage();
+
+    await page.goto('https://en.wiktionary.org/wiki/bahagia');
+
+    const textSelector = '#firstHeading > span';
+    await page.waitForSelector(textSelector);
+
+    await selectText(page, textSelector);
+
+    const element = await page.$(textSelector);
+    const boundingBox = await element!.boundingBox();
+
+    if (!boundingBox) throw new Error('not focused');
+
+    const middleHight = boundingBox.x + boundingBox.width / 2;
+    const middleLenth = boundingBox.y + boundingBox.height / 2;
+
+    await page.mouse.click(middleHight, middleLenth, {
+      button: 'right',
+    });
+
+    page.bringToFront();
+
+    await execAsync(`python ${__dirname}/scripts/select_new_option_in_wikipidia.py`);
+
+    await new Promise((resolve) => setTimeout(resolve, 3000));
+
+    const pages = await browser.pages();
+    expect(pages.length).toBeGreaterThan(2);
+
+    const lastOpenedPage = pages.length - 1;
+    const newTab = pages[lastOpenedPage];
+    await newTab.bringToFront();
+
+    const url = newTab.url();
+    expect(url).toMatch(new RegExp(`https://kbbi.co.id/cari?kata=bahagia`));
+
+    const searchResultCountSelector = '#main > div > div.col-sm-9 > div > p:nth-child(4)';
+    await newTab.waitForSelector(searchResultCountSelector, { visible: true });
+
+    const content = await newTab.$eval(searchResultCountSelector, (el) => el.textContent);
+    expect(content).toBeTruthy();
+  }, 45000);
 });
