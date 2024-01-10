@@ -2,6 +2,7 @@ import puppeteer, { Browser, Page } from 'puppeteer';
 import path from 'path';
 import * as fs from 'fs';
 import { SELECTORS } from '../utils/selectors';
+import execAsync from './utils/execAsync';
 
 const TEXT_REGEX = /ma·in/;
 
@@ -15,6 +16,57 @@ const PAGE_WITH_ONLY_ONE_EXPLANATION_DIV = 'https://kbbi.co.id/arti-kata/main';
 
 const PAGE_WITH_MUTIPLE_EXLANATION_DIV = 'https://kbbi.co.id/arti-kata/kasih';
 
+/**
+ * 嘗試透過 clipboardy 來清空，但是沒辦法 compile
+ * 接著嘗試使用 jest-clipboard 清空，但遭遇到 transformIgnorePatterns 以及 babel.config.js 設置後，仍然無法運作的問題
+ */
+export async function clearClipboard(page: Page) {
+  await page.evaluate(() => {
+    const selection = document.getSelection();
+    if (selection) {
+      selection.removeAllRanges();
+    }
+
+    document.execCommand('copy');
+  });
+}
+
+async function rightClickOnElement(page: Page, selector: string) {
+  const element = await page.$(selector);
+
+  if (!element) throw new Error('no such element');
+
+  const boundingBox = await element.boundingBox();
+
+  if (!boundingBox) throw new Error('Element not focused');
+
+  const middleHeight = boundingBox.x + boundingBox.width / 2;
+  const middleLength = boundingBox.y + boundingBox.height / 2;
+
+  await page.mouse.click(middleHeight, middleLength, {
+    button: 'right',
+  });
+}
+
+function pause(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function selectText(page: Page, selector: string) {
+  await page.evaluate((selector) => {
+    const element = document.querySelector(selector);
+    if (!element) throw new Error(`Element not found for selector: ${selector}`);
+
+    const range = document.createRange();
+    range.selectNodeContents(element);
+    const selection = window.getSelection();
+    if (!selection) throw new Error('No selection object available');
+
+    selection.removeAllRanges();
+    selection.addRange(range);
+  }, selector);
+}
+
 async function takeScreenshotForTest(testName: string, page: Page): Promise<void> {
   const screenshotsDir = './screenshots';
   if (!fs.existsSync(screenshotsDir)) {
@@ -25,21 +77,6 @@ async function takeScreenshotForTest(testName: string, page: Page): Promise<void
   const screenshotPath = path.join(screenshotsDir, `${testName}-${timestamp}.png`);
 
   await page.screenshot({ path: screenshotPath });
-}
-
-/**
- * 嘗試透過 clipboardy 來清空，但是沒辦法 compile
- * 接著嘗試使用 jest-clipboard 清空，但遭遇到 transformIgnorePatterns 以及 babel.config.js 設置後，仍然無法運作的問題
- */
-async function clearClipboard(page: Page) {
-  await page.evaluate(() => {
-    const selection = document.getSelection();
-    if (selection) {
-      selection.removeAllRanges();
-    }
-
-    document.execCommand('copy');
-  });
 }
 
 describe('Extension loaded with text modification functionality', () => {
@@ -93,7 +130,31 @@ describe('Extension loaded with text modification functionality', () => {
     expect(isSelectionAvailable).toBeTruthy();
   });
 
-  test('text content should start with "ma·in" and target prefix', async () => {
+  test('text copied via context menu should not start with prefix but match TEXT_REGEX', async () => {
+    await browser!
+      .defaultBrowserContext()
+      .overridePermissions('https://kbbi.co.id', ['clipboard-read', 'clipboard-write']);
+
+    const page = await browser!.newPage();
+    await page.goto(PAGE_WITH_ONLY_ONE_EXPLANATION_DIV);
+    await page.waitForSelector(SELECTORS.EXPLANATION_SECTORS);
+
+    selectText(page, SELECTORS.EXPLANATION_SECTORS);
+
+    await clearClipboard(page);
+
+    await rightClickOnElement(page, SELECTORS.EXPLANATION_SECTORS);
+    await execAsync(`python ${__dirname}/scripts/choose_copy_context_menu.py`);
+
+    await pause(1000);
+
+    const copiedText = await page.evaluate(() => navigator.clipboard.readText());
+
+    expect(copiedText.startsWith(prefix)).toBeFalsy();
+    expect(copiedText).toMatch(TEXT_REGEX);
+  });
+
+  test('keyboard copied should start with "ma·in" and target prefix', async () => {
     await browser!
       .defaultBrowserContext()
       .overridePermissions('https://kbbi.co.id', ['clipboard-read', 'clipboard-write']);
@@ -101,32 +162,11 @@ describe('Extension loaded with text modification functionality', () => {
     const page = await browser!.newPage();
     await page.goto(PAGE_WITH_ONLY_ONE_EXPLANATION_DIV);
 
-    // this is required to make document focused
     await page.bringToFront();
 
-    // await page.evaluate(() => {
-    //   const selection = document.getSelection();
-    //   const range = document.createRange();
-    //   const element = document.querySelector(SELECTORS.MAIN_EXPLANATION);
+    selectText(page, SELECTORS.EXPLANATION_SECTORS);
 
-    //   range.selectNodeContents(element!);
-
-    //   selection!.removeAllRanges();
-    //   selection!.addRange(range);
-    //   document.execCommand('copy');
-    // });
-
-    await page.evaluate((mainExplanationSelector) => {
-      const selection = document.getSelection();
-      const range = document.createRange();
-      const element = document.querySelector(mainExplanationSelector);
-
-      range.selectNodeContents(element!);
-
-      selection!.removeAllRanges();
-      selection!.addRange(range);
-      document.execCommand('copy');
-    }, SELECTORS.EXPLANATION_SECTORS);
+    await execAsync(`python ${__dirname}/scripts/simulate_keyboard_copy.py`);
 
     const copiedText = await page.evaluate(() => navigator.clipboard.readText());
 
@@ -135,7 +175,6 @@ describe('Extension loaded with text modification functionality', () => {
   });
 
   // tests for one-click capture btn
-
   test('search button should exist on the page', async () => {
     const page = await browser!.newPage();
     await page.goto(PAGE_WITH_ONLY_ONE_EXPLANATION_DIV);
@@ -208,6 +247,7 @@ describe('Extension loaded with text modification functionality', () => {
 
     const copiedText = await page.evaluate(() => navigator.clipboard.readText());
 
+    expect(copiedText.startsWith(prefix)).toBeTruthy();
     expect(copiedText).toContain(explanationInTheMiddle);
     expect(copiedText).toContain(endPartOfExplanation);
   });
@@ -240,6 +280,7 @@ describe('Extension loaded with text modification functionality', () => {
 
     const copiedText = await page.evaluate(() => navigator.clipboard.readText());
 
+    expect(copiedText.startsWith(prefix)).toBeTruthy();
     expect(copiedText).toContain(explanationInTheMiddle);
     expect(copiedText).toContain(endPartOfExplanation);
   });
@@ -289,6 +330,8 @@ describe('Extension loaded with text modification functionality', () => {
     await page.click(btnById);
 
     const copiedText = await page.evaluate(() => navigator.clipboard.readText());
+
+    expect(copiedText.startsWith(prefix)).toBeTruthy();
 
     const titleOccurrences = copiedText.split(note).length - 1;
 

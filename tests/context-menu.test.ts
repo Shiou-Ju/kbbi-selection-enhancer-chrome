@@ -1,9 +1,6 @@
 import puppeteer, { Browser, Page } from 'puppeteer';
 import path from 'path';
-import { exec } from 'child_process';
-import { promisify } from 'util';
-
-const execAsync = promisify(exec);
+import execAsync from './utils/execAsync';
 
 const EXTENSION_PATH = path.join(process.cwd(), 'dist');
 
