@@ -26,10 +26,10 @@ export async function clearClipboard(page: Page) {
   });
 }
 
-async function rightClickOnElement(page:Page, selector:string) {
+async function rightClickOnElement(page: Page, selector: string) {
   const element = await page.$(selector);
 
-  if (!element) throw new Error('no such element')
+  if (!element) throw new Error('no such element');
 
   const boundingBox = await element.boundingBox();
 
@@ -123,7 +123,6 @@ describe('Chrome Browser Context Menu Tests', () => {
     await page.waitForSelector(textSelector);
 
     await selectText(page, textSelector);
-
 
     await rightClickOnElement(page, textSelector);
 
