@@ -226,7 +226,7 @@ describe('Extension Specific', () => {
     await newTab.bringToFront();
 
     const url = newTab.url();
-    expect(url).toMatch(new RegExp(`https://kbbi.co.id/cari?kata=bahagia`));
+    expect(url).toMatch(new RegExp(`https://kbbi.co.id/cari\\?kata=bahagia`));
 
     const searchResultCountSelector = '#main > div > div.col-sm-9 > div > p:nth-child(4)';
     await newTab.waitForSelector(searchResultCountSelector, { visible: true });
