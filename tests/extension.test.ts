@@ -152,7 +152,7 @@ describe('Extension loaded with text modification functionality', () => {
 
     expect(copiedText.startsWith(prefix)).toBeFalsy();
     expect(copiedText).toMatch(TEXT_REGEX);
-  });
+  }, 10000);
 
   test('keyboard copied should start with "ma·in" and target prefix', async () => {
     await browser!

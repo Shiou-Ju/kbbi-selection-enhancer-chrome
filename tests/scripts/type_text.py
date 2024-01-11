@@ -20,4 +20,7 @@ import sys
 
 
 text_to_type = sys.argv[1] if len(sys.argv) > 1 else "hello world"
-pyautogui.write(text_to_type)
+
+not_to_trigger_dictation_interval = 0.2
+
+pyautogui.write(text_to_type, interval=not_to_trigger_dictation_interval)
