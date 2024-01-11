@@ -8,6 +8,7 @@
   "scripts": {
     "format": "prettier --write \"**/*.{ts,js,json}\"",
     "test": "yarn build-dev && PUPPETEER_DISABLE_HEADLESS_WARNING=true  jest --verbose  --coverage --runInBand",
+    "test-kbbi-page": "yarn build-dev && PUPPETEER_DISABLE_HEADLESS_WARNING=true jest --verbose --coverage tests/selector.test.ts",
     "test-context-menu": "yarn build-dev && PUPPETEER_DISABLE_HEADLESS_WARNING=true jest --verbose --coverage tests/context-menu.test.ts",
     "test-copy-functions": "yarn build-dev && PUPPETEER_DISABLE_HEADLESS_WARNING=true jest --verbose --coverage tests/extension.test.ts",
     "build-legacy": "rm -rf dist && tsc && cp manifest.json dist/ && cp -r icons dist/",
