@@ -126,6 +126,7 @@ const addCaptureAllBtn = () => {
   button.id = SELECTORS.ID_BTN_FOR_ALL_EXPLANAION;
 
   const buttonContainer = document.createElement('div');
+  buttonContainer.id = SELECTORS.ID_CONTAINER_BTN;
   buttonContainer.appendChild(button);
 
   btnParent.insertAdjacentElement('afterend', buttonContainer);

@@ -337,4 +337,21 @@ describe('Extension loaded with text modification functionality', () => {
 
     expect(titleOccurrences).toBe(1);
   });
+
+  test('dropdown should exist on the page', async () => {
+    const page = await browser!.newPage();
+    await page.goto(PAGE_WITH_MUTIPLE_EXLANATION_DIV);
+
+    const dropdownSelector = '#' + SELECTORS.ID_BTN_DROPDOWN;
+
+    const dropdown = await page.$(dropdownSelector);
+    expect(dropdown).not.toBeNull();
+
+    const isVisible = await page.evaluate((selector) => {
+      const element = document.querySelector(selector) as HTMLElement;
+      return element && element.offsetWidth > 0 && element.offsetHeight > 0;
+    }, dropdownSelector);
+
+    expect(isVisible).toBe(true);
+  });
 });
