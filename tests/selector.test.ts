@@ -82,8 +82,84 @@ describe('KBBI Selector Tests', () => {
         throw new Error(`${rootWordMatch} , ${derivedWordMatch} went wrong`);
       }
 
-      const rootWord = rootWordMatch[1];
-      const rootWordFirstLetterOff = rootWord.substring(1);
+      const rootWordProcessed = rootWordMatch[1]
+        .replace(/<[^>]+>/g, '')
+        .replace(/[0-9]/g, '')
+        .replace(/·/g, '')
+        .trim();
+
+      const rootWordFirstLetterOff = rootWordProcessed.substring(1);
+
+      const derivedWord = derivedWordMatch[1].replace(/·/g, '');
+
+      expect(derivedWord.includes(rootWordFirstLetterOff)).toBeTruthy();
+    });
+  });
+
+  test('words from multiple paragraphs should be accurately separated and contain the root word', async () => {
+    await page.goto(DERIVATIVES_IN_MUTIPLE_SECTIONS);
+
+    const explanationElements = await page.$$(SELECTORS.EXPLANATION_SECTORS);
+    let allHtmlContent = '';
+
+    for (const element of explanationElements) {
+      const elementHtml = await page.evaluate((el) => el.innerHTML, element);
+      allHtmlContent += elementHtml + '\n\n';
+    }
+
+    // console.log(allHtmlContent);
+
+    const bTagSeperationRegex = /<b>.*?(?=<b>|$)/gs;
+
+    const segments = allHtmlContent.match(bTagSeperationRegex);
+
+    const combinedSegments: string[] = [];
+    let previousSegment = '';
+
+    // TODO: use map
+    segments!.forEach((segment, index) => {
+      const iTagWithLessThanFiveLetterRegex = /<b>.*?<\/b> <i>.{1,5}<\/i>/;
+
+      const patternMatch = segment.match(iTagWithLessThanFiveLetterRegex);
+
+      if (patternMatch || index === 0) {
+        if (previousSegment) {
+          combinedSegments.push(previousSegment);
+          previousSegment = '';
+        }
+        combinedSegments.push(segment);
+      } else {
+        previousSegment += segment;
+      }
+    });
+
+    if (previousSegment) {
+      combinedSegments.push(previousSegment);
+    }
+
+    if (combinedSegments.length == 0) throw new Error('no combined');
+
+    combinedSegments.forEach((segment, index) => {
+      const isRootWordElement = index === 0;
+      if (isRootWordElement) return;
+
+      const rootWordMatch = combinedSegments[0].match(/<b>(.*?)<\/b>/);
+
+      const derivedWordMatch = segment.match(/<b>(.*?·.*?)<\/b>/);
+
+      if (!derivedWordMatch || derivedWordMatch.length === 0) return;
+
+      if (!(rootWordMatch && derivedWordMatch)) {
+        throw new Error(`${rootWordMatch} , ${derivedWordMatch} went wrong`);
+      }
+
+      const rootWordProcessed = rootWordMatch[1]
+        .replace(/<[^>]+>/g, '')
+        .replace(/[0-9]/g, '')
+        .replace(/·/g, '')
+        .trim();
+
+      const rootWordFirstLetterOff = rootWordProcessed.substring(1);
 
       const derivedWord = derivedWordMatch[1].replace(/·/g, '');
 
