@@ -89,6 +89,8 @@ describe('Chrome Browser Context Menu Tests', () => {
 
       const exampleStringToBeAumatedEnter = 'hello world';
 
+      // if this test triggers dictation and emoji panel, it's normal
+      // issue: https://github.com/asweigart/pyautogui/issues/796
       await execAsync(`python ${__dirname}/scripts/type_text.py "${exampleStringToBeAumatedEnter}"`);
 
       await pause(2000);

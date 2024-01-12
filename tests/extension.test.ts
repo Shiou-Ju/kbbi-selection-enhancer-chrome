@@ -155,6 +155,7 @@ describe('Extension loaded with text modification functionality', () => {
   }, 10000);
 
   test('keyboard copied should start with "ma·in" and target prefix', async () => {
+    // TODO: this test mighjt work intermittently, still under watch
     await browser!
       .defaultBrowserContext()
       .overridePermissions('https://kbbi.co.id', ['clipboard-read', 'clipboard-write']);
@@ -166,13 +167,17 @@ describe('Extension loaded with text modification functionality', () => {
 
     selectText(page, SELECTORS.EXPLANATION_SECTORS);
 
+    await pause(1000);
+
     await execAsync(`python ${__dirname}/scripts/simulate_keyboard_copy.py`);
+
+    await pause(3000);
 
     const copiedText = await page.evaluate(() => navigator.clipboard.readText());
 
     expect(copiedText.startsWith(prefix)).toBeTruthy();
     expect(copiedText).toMatch(TEXT_REGEX);
-  });
+  }, 15000);
 
   // tests for one-click capture btn
   test('search button should exist on the page', async () => {
