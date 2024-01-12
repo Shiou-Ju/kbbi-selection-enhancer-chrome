@@ -338,7 +338,7 @@ describe('Extension loaded with text modification functionality', () => {
     expect(titleOccurrences).toBe(1);
   });
 
-  test('dropdown should exist on the page', async () => {
+  test('dropdown should have options according to parts of speech', async () => {
     const page = await browser!.newPage();
     await page.goto(PAGE_WITH_MUTIPLE_EXLANATION_DIV);
 
@@ -353,5 +353,11 @@ describe('Extension loaded with text modification functionality', () => {
     }, dropdownSelector);
 
     expect(isVisible).toBe(true);
+
+    const optionsText = await page.$$eval(`${dropdownSelector} option`, (options) =>
+      options.map((option) => option.textContent || '')
+    );
+    expect(optionsText).toContain('選取全部動詞');
+    expect(optionsText).toContain('選取全部名詞');
   });
 });
