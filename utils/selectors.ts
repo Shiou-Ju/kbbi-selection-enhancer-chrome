@@ -4,5 +4,5 @@ export const SELECTORS = {
   BTN_PARENT_ELEMENT: '#main > div > div.col-sm-8 > div.xwell',
   SEARCH_BTN: '#main-menu > form > div > div > button',
   ID_CONTAINER_BTN: 'extension-btn-container',
-  ID_BTN_DROPDOWN: 'dropdown',
+  ID_BTN_DROPDOWN: 'word-select-dropdown',
 } as const;

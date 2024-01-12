@@ -6,8 +6,9 @@
   "license": "MIT",
   "main": "index.js",
   "scripts": {
-    "build": "rm -rf dist && webpack --mode production && cp manifest.json dist/ && cp -r icons dist/",
-    "build-dev": "rm -rf dist && webpack --mode development && cp manifest.json dist/ && cp -r icons dist/",
+    "copy-necessary-build-files": "cp manifest.json dist/ && cp -r icons dist/ && cp src/extensionStyles.css dist/",
+    "build": "rm -rf dist && webpack --mode production && yarn copy-necessary-build-files",
+    "build-dev": "rm -rf dist && webpack --mode development && yarn copy-necessary-build-files",
     "test": "yarn build-dev && PUPPETEER_DISABLE_HEADLESS_WARNING=true  jest --verbose  --coverage --runInBand",
     "test-kbbi-page": "yarn build-dev && PUPPETEER_DISABLE_HEADLESS_WARNING=true jest --verbose --coverage tests/selector.test.ts",
     "test-context-menu": "yarn build-dev && PUPPETEER_DISABLE_HEADLESS_WARNING=true jest --verbose --coverage tests/context-menu.test.ts",
