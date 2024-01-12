@@ -99,13 +99,9 @@ describe('KBBI Selector Tests', () => {
   test('words from multiple paragraphs should be accurately separated and contain the root word', async () => {
     await page.goto(DERIVATIVES_IN_MUTIPLE_SECTIONS);
 
-    const explanationElements = await page.$$(SELECTORS.EXPLANATION_SECTORS);
-    let allHtmlContent = '';
-
-    for (const element of explanationElements) {
-      const elementHtml = await page.evaluate((el) => el.innerHTML, element);
-      allHtmlContent += elementHtml + '\n\n';
-    }
+    const allHtmlContent = await page.$$eval(SELECTORS.EXPLANATION_SECTORS, (elements) =>
+      elements.map((el) => el.innerHTML).join('\n\n')
+    );
 
     // console.log(allHtmlContent);
 

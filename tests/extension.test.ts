@@ -357,7 +357,11 @@ describe('Extension loaded with text modification functionality', () => {
     const optionsText = await page.$$eval(`${dropdownSelector} option`, (options) =>
       options.map((option) => option.textContent || '')
     );
-    expect(optionsText).toContain('選取全部動詞');
-    expect(optionsText).toContain('選取全部名詞');
+
+    const wordKasihIsAVerb = '選取全部動詞';
+    const wordKasihIsANoun = '選取全部名詞';
+
+    expect(optionsText).toContain(wordKasihIsANoun);
+    expect(optionsText).toContain(wordKasihIsAVerb);
   });
 });
