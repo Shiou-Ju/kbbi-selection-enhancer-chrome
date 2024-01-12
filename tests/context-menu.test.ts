@@ -79,6 +79,8 @@ describe('Chrome Browser Context Menu Tests', () => {
 
       await page.goto('file:///' + __dirname + '/test-input-page.html');
 
+      await pause(1000);
+
       await page.bringToFront();
 
       await page.waitForSelector('#testInput');

@@ -4,6 +4,7 @@
 
 import pyautogui
 import sys
+import time
 
 
 # even using mandarin or other languages, as long as there is insertion, the test shall pass
@@ -17,6 +18,9 @@ import sys
 # time.sleep(0.3)
 # pyautogui.press('capslock')
 # time.sleep(0.3)
+
+delay_duration_for_no_dictation = 1.0
+time.sleep(delay_duration_for_no_dictation)
 
 
 text_to_type = sys.argv[1] if len(sys.argv) > 1 else "hello world"
