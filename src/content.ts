@@ -113,6 +113,17 @@ function convertSelectedTextToPromptForTranslation(
   return modifiedText;
 }
 
+const createButtonContainer = () => {
+  let buttonContainer = document.getElementById(SELECTORS.ID_CONTAINER_BTN);
+
+  if (buttonContainer) {
+    return buttonContainer;
+  } else {
+    buttonContainer = document.createElement('div');
+    buttonContainer.id = SELECTORS.ID_CONTAINER_BTN;
+    return buttonContainer;
+  }
+};
 const addCaptureAllBtn = () => {
   const btnParent = document.querySelector(SELECTORS.BTN_PARENT_ELEMENT);
   if (!btnParent) return;
@@ -125,11 +136,12 @@ const addCaptureAllBtn = () => {
   button.className = 'btn btn-default';
   button.id = SELECTORS.ID_BTN_FOR_ALL_EXPLANAION;
 
-  const buttonContainer = document.createElement('div');
-  buttonContainer.id = SELECTORS.ID_CONTAINER_BTN;
-  buttonContainer.appendChild(button);
+  const buttonContainer = createButtonContainer();
 
-  btnParent.insertAdjacentElement('afterend', buttonContainer);
+  if (!btnParent.contains(buttonContainer)) {
+    btnParent.insertAdjacentElement('afterend', buttonContainer);
+  }
+  buttonContainer.appendChild(button);
 
   button.addEventListener('click', async () => {
     const explanationElements = document.querySelectorAll(SELECTORS.EXPLANATION_SECTORS);
@@ -161,8 +173,23 @@ const addCaptureAllBtn = () => {
   });
 };
 
+const addDropdown = () => {
+  const dropdownParent = document.querySelector(SELECTORS.BTN_PARENT_ELEMENT);
+  if (!dropdownParent) return;
+
+  const dropdown = document.createElement('select');
+  dropdown.id = SELECTORS.ID_BTN_DROPDOWN;
+
+  // TODO: Add options to the dropdown here
+  // Example: const option = document.createElement('option');
+
+  dropdownParent.appendChild(dropdown);
+  // TODO: logic
+};
+
 document.addEventListener('keydown', handleKeyDown);
 document.addEventListener('keyup', handleKeyUp);
 
 addCopyModification();
 addCaptureAllBtn();
+addDropdown();
