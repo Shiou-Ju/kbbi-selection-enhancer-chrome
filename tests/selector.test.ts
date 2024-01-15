@@ -1,70 +1,11 @@
 import puppeteer, { Page, Browser } from 'puppeteer';
 import { SELECTORS } from '../utils/selectors';
+import { extractMeaningWordsFromInnerHtml } from '../src/extractMeaningWordsFromInnerHtml';
 
 const DERIVATIVES_IN_ONE_SECTION = 'https://kbbi.co.id/arti-kata/ajar';
 
 const DERIVATIVES_IN_MUTIPLE_SECTIONS = 'https://kbbi.co.id/arti-kata/acara';
-
-// TODO: complexity
-function extractMeaningWordsFromInnerHtml(innerHtml: string) {
-  const bTagSeperationRegex = /<b>.*?(?=<b>|$)/gs;
-
-  const segments = innerHtml.match(bTagSeperationRegex);
-
-  const concatedSegments: string[] = [];
-  let leadingSegment = '';
-
-  // TODO: use map
-  segments!.forEach((segment, index) => {
-    const iTagWithLessThanFiveLetterRegex = /<b>.*?<\/b> <i>.{1,5}<\/i>/;
-
-    const hasPatternMatch = segment.match(iTagWithLessThanFiveLetterRegex);
-
-    const isRootWordSection = index === 0;
-
-    if (hasPatternMatch || isRootWordSection) {
-      const hasLeadingContent = !!leadingSegment;
-
-      if (hasLeadingContent) {
-        concatedSegments.push(leadingSegment);
-        leadingSegment = '';
-      }
-      concatedSegments.push(segment);
-    } else {
-      leadingSegment += segment;
-    }
-  });
-
-  const hasStillLeadingContent = !!leadingSegment;
-
-  if (hasStillLeadingContent) {
-    concatedSegments.push(leadingSegment);
-  }
-
-  if (concatedSegments.length === 0) throw new Error('no concated');
-
-  let lastMeaningfulIndex = 0;
-
-  const secondConcated: string[] = Array(concatedSegments.length).fill(null);
-
-  concatedSegments.forEach((firstConcated, currentIndex) => {
-    const derivedWordMatch = firstConcated.match(/<b>(.*?·.*?)<\/b>/);
-
-    const isStillPartOfExplanation = !derivedWordMatch || derivedWordMatch.length === 0;
-
-    if (isStillPartOfExplanation) {
-      secondConcated[lastMeaningfulIndex] += firstConcated;
-    } else {
-      lastMeaningfulIndex = currentIndex;
-
-      secondConcated[currentIndex] = firstConcated;
-    }
-  });
-
-  const secondConcatedAfterRemovedNull = secondConcated.filter((element) => element !== null);
-
-  return secondConcatedAfterRemovedNull;
-}
+// const DERIVATIVES_IN_MUTIPLE_SECTIONS = 'https://kbbi.co.id/arti-kata/pada';
 
 describe('KBBI Selector Tests', () => {
   let browser: Browser;
@@ -137,6 +78,8 @@ describe('KBBI Selector Tests', () => {
     );
 
     const wordSegments = extractMeaningWordsFromInnerHtml(allInnterHtml);
+
+    console.log(`wordSegments`,wordSegments)
 
     wordSegments.forEach((segment, index) => {
       const isRootWordElement = index === 0;

@@ -1,4 +1,5 @@
 import { SELECTORS } from '../utils/selectors';
+// import { extractMeaningWordsFromInnerHtml } from './extractMeaningWordsFromInnerHtml';
 
 let isCmdCtrlPressed = false;
 let isCPressed = false;
@@ -216,14 +217,21 @@ const addDropdown = () => {
 };
 
 // TODO: maybe need improvement
-const categorizeWordsWithExplanations = (htmlContent: string): CategorizedWords => {
+const categorizeWordsWithExplanations = (innerHtml: string): CategorizedWords => {
   const bTagSeperationRegex = /<b>.*?(?=<b>|$)/gs;
   const wordWithExplanationRegex = /<b>(.*?)<\/b> <i>(.{1,5})<\/i>(.*?)(?=<b>|$)/gs;
 
   const categorizedWords: CategorizedWords = {};
-  const segments = htmlContent.match(bTagSeperationRegex) || [];
+
+  const segments = innerHtml.match(bTagSeperationRegex) || [];
+
+  // TODO: try to use the selector test's logic
+  // const segments = extractMeaningWordsFromInnerHtml(innerHtml);
 
   const processedSegments = Array(segments.length).fill(null);
+
+  console.log(`segments`);
+  segments.forEach((seg) => console.log(seg));
 
   for (let i = 0; i < segments.length; i++) {
     let match;
@@ -250,6 +258,8 @@ const categorizeWordsWithExplanations = (htmlContent: string): CategorizedWords 
   let lastNullIndex: Number = 0;
   let lastPartOfSpeech: String = '';
 
+  console.log(`processedSegments`, processedSegments);
+
   processedSegments.forEach((element, index) => {
     if (element !== null) {
       const { partOfSpeech, indexInArray } = processedSegments[index];
@@ -265,6 +275,7 @@ const categorizeWordsWithExplanations = (htmlContent: string): CategorizedWords 
   return categorizedWords;
 };
 
+// TODO: list all
 const partOfSpeechMapping: { [key: string]: string } = {
   n: '選取全部名詞',
   v: '選取全部動詞',
