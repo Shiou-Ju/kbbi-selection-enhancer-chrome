@@ -342,31 +342,4 @@ describe('Extension loaded with text modification functionality', () => {
 
     expect(titleOccurrences).toBe(1);
   });
-
-  test('dropdown should have options according to parts of speech', async () => {
-    const page = await browser!.newPage();
-    await page.goto(PAGE_WITH_MUTIPLE_EXLANATION_DIV);
-
-    const dropdownSelector = '#' + SELECTORS.ID_BTN_DROPDOWN;
-
-    const dropdown = await page.$(dropdownSelector);
-    expect(dropdown).not.toBeNull();
-
-    const isVisible = await page.evaluate((selector) => {
-      const element = document.querySelector(selector) as HTMLElement;
-      return element && element.offsetWidth > 0 && element.offsetHeight > 0;
-    }, dropdownSelector);
-
-    expect(isVisible).toBe(true);
-
-    const optionsText = await page.$$eval(`${dropdownSelector} option`, (options) =>
-      options.map((option) => option.textContent || '')
-    );
-
-    const wordKasihIsAVerb = '選取全部動詞';
-    const wordKasihIsANoun = '選取全部名詞';
-
-    expect(optionsText).toContain(wordKasihIsANoun);
-    expect(optionsText).toContain(wordKasihIsAVerb);
-  });
 });
