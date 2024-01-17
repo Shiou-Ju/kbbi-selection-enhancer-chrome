@@ -10,9 +10,11 @@ interval_to_properly_trigger_hotkey = 0.3
 
 def copy_clipboard():
     if is_macos:
-        pyautogui.hotkey('command', 'c', interval_to_properly_trigger_hotkey)
+        pyautogui.hotkey(
+            'command', 'c', interval=interval_to_properly_trigger_hotkey)
     else:
-        pyautogui.hotkey('ctrl', 'c', interval_to_properly_trigger_hotkey)
+        pyautogui.hotkey(
+            'ctrl', 'c', interval=interval_to_properly_trigger_hotkey)
 
 
 copy_clipboard()
