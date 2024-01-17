@@ -1,4 +1,6 @@
 // NOTE: Please follow and respect target website's rule.
+// used to save html for local testing
+
 import puppeteer from 'puppeteer';
 import { promises as fs, existsSync, mkdirSync } from 'fs';
 import { format } from 'date-fns';

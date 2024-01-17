@@ -16,6 +16,9 @@ const PAGE_WITH_ONLY_ONE_EXPLANATION_DIV = 'https://kbbi.co.id/arti-kata/main';
 
 const PAGE_WITH_MUTIPLE_EXLANATION_DIV = 'https://kbbi.co.id/arti-kata/kasih';
 
+const explanationKasihInTheFirstParagraph = 'saling mengasihi; saling';
+const endPartOfKasihSecondParagraphExplanation = 'Ibu adalah ~ kakakku';
+
 /**
  * 嘗試透過 clipboardy 來清空，但是沒辦法 compile
  * 接著嘗試使用 jest-clipboard 清空，但遭遇到 transformIgnorePatterns 以及 babel.config.js 設置後，仍然無法運作的問題
@@ -123,7 +126,6 @@ describe('Extension loaded with text modification functionality', () => {
 
     const isSelectionAvailable = await page.evaluate(() => {
       const selection = document.getSelection();
-      //   return selection !== null && selection.toString() !== '';
       return selection !== null;
     });
 
@@ -152,9 +154,10 @@ describe('Extension loaded with text modification functionality', () => {
 
     expect(copiedText.startsWith(prefix)).toBeFalsy();
     expect(copiedText).toMatch(TEXT_REGEX);
-  });
+  }, 10000);
 
   test('keyboard copied should start with "ma·in" and target prefix', async () => {
+    // TODO: this test mighjt work intermittently, still under watch
     await browser!
       .defaultBrowserContext()
       .overridePermissions('https://kbbi.co.id', ['clipboard-read', 'clipboard-write']);
@@ -166,13 +169,17 @@ describe('Extension loaded with text modification functionality', () => {
 
     selectText(page, SELECTORS.EXPLANATION_SECTORS);
 
+    await pause(1000);
+
     await execAsync(`python ${__dirname}/scripts/simulate_keyboard_copy.py`);
+
+    await pause(3000);
 
     const copiedText = await page.evaluate(() => navigator.clipboard.readText());
 
     expect(copiedText.startsWith(prefix)).toBeTruthy();
     expect(copiedText).toMatch(TEXT_REGEX);
-  });
+  }, 15000);
 
   // tests for one-click capture btn
   test('search button should exist on the page', async () => {
@@ -190,7 +197,7 @@ describe('Extension loaded with text modification functionality', () => {
     const page = await browser!.newPage();
     await page.goto(PAGE_WITH_ONLY_ONE_EXPLANATION_DIV);
 
-    const buttonId = '#' + SELECTORS.ID_BTN_FOR_ALL_EXPLANAION;
+    const buttonId = `#${SELECTORS.ID_BTN_FOR_ALL_EXPLANAION}`;
 
     const captureAllButton = await page.$(buttonId);
     expect(captureAllButton).not.toBeNull();
@@ -223,7 +230,7 @@ describe('Extension loaded with text modification functionality', () => {
       SELECTORS.EXPLANATION_SECTORS
     );
 
-    const btnById = '#' + SELECTORS.ID_BTN_FOR_ALL_EXPLANAION;
+    const btnById = `#${SELECTORS.ID_BTN_FOR_ALL_EXPLANAION}`;
 
     await page.waitForSelector(btnById);
 
@@ -267,22 +274,16 @@ describe('Extension loaded with text modification functionality', () => {
     expect(allExplanationsText).toBeDefined();
     expect(typeof allExplanationsText).toBe('string');
 
-    const explanationInTheMiddle = 'saling mengasihi; saling';
-    const endPartOfExplanation = 'Ibu adalah ~ kakakku';
-
     await clearClipboard(page);
 
-    // expect(allExplanationsText).toContain(explanationInTheMiddle);
-    // expect(allExplanationsText).toContain(endPartOfExplanation);
-
-    const btnById = '#' + SELECTORS.ID_BTN_FOR_ALL_EXPLANAION;
+    const btnById = `#${SELECTORS.ID_BTN_FOR_ALL_EXPLANAION}`;
     await page.click(btnById);
 
     const copiedText = await page.evaluate(() => navigator.clipboard.readText());
 
     expect(copiedText.startsWith(prefix)).toBeTruthy();
-    expect(copiedText).toContain(explanationInTheMiddle);
-    expect(copiedText).toContain(endPartOfExplanation);
+    expect(copiedText).toContain(explanationKasihInTheFirstParagraph);
+    expect(copiedText).toContain(endPartOfKasihSecondParagraphExplanation);
   });
 
   test('button text should change to "Copied" on click and revert back after 1 second', async () => {
@@ -293,7 +294,7 @@ describe('Extension loaded with text modification functionality', () => {
     const page = await browser!.newPage();
     await page.goto(PAGE_WITH_MUTIPLE_EXLANATION_DIV);
 
-    const btnById = '#' + SELECTORS.ID_BTN_FOR_ALL_EXPLANAION;
+    const btnById = `#${SELECTORS.ID_BTN_FOR_ALL_EXPLANAION}`;
 
     await page.waitForSelector(btnById);
 
@@ -323,7 +324,7 @@ describe('Extension loaded with text modification functionality', () => {
     const page = await browser!.newPage();
     await page.goto(PAGE_WITH_MUTIPLE_EXLANATION_DIV);
 
-    const btnById = '#' + SELECTORS.ID_BTN_FOR_ALL_EXPLANAION;
+    const btnById = `#${SELECTORS.ID_BTN_FOR_ALL_EXPLANAION}`;
 
     await page.waitForSelector(btnById);
 
@@ -336,5 +337,82 @@ describe('Extension loaded with text modification functionality', () => {
     const titleOccurrences = copiedText.split(note).length - 1;
 
     expect(titleOccurrences).toBe(1);
+  });
+
+  test('each explanation section should have a "Copy" button on the top right corner', async () => {
+    await browser!
+      .defaultBrowserContext()
+      .overridePermissions('https://kbbi.co.id', ['clipboard-read', 'clipboard-write']);
+
+    const page = await browser!.newPage();
+    await page.goto(PAGE_WITH_MUTIPLE_EXLANATION_DIV);
+
+    await page.waitForSelector(SELECTORS.EXPLANATION_SECTORS);
+
+    const explanationSections = await page.$$(SELECTORS.EXPLANATION_SECTORS);
+
+    const btnClass = `.${SELECTORS.CLASS_BTN_COPY_SINGAL_PARAGRAPH}`;
+
+    for (const section of explanationSections) {
+      const button = await section.$(btnClass);
+      expect(button).not.toBeNull();
+
+      const buttonBounds = await page.evaluate((button) => {
+        const { top, right } = button!.getBoundingClientRect();
+        return { top, right };
+      }, button);
+
+      const sectionBounds = await page.evaluate((el) => {
+        const rect = el.getBoundingClientRect();
+        return {
+          top: rect.top,
+          right: rect.right,
+          height: el.offsetHeight,
+          width: el.offsetWidth,
+          clientHeight: el.clientHeight,
+        };
+      }, section);
+
+      const borderThickness = 1;
+
+      const precision = 10;
+
+      const sectionTopAddedBorder = sectionBounds.top + borderThickness;
+      const sectionRightWithOutBorder = sectionBounds.right - borderThickness;
+
+      expect(buttonBounds.top).toBeCloseTo(sectionTopAddedBorder, precision);
+      expect(buttonBounds.right).toBeCloseTo(sectionRightWithOutBorder, precision);
+    }
+  });
+
+  test('clicking the second copy button should retrieve second explanation paragraph from the page', async () => {
+    await browser!
+      .defaultBrowserContext()
+      .overridePermissions('https://kbbi.co.id', ['clipboard-read', 'clipboard-write']);
+
+    const page = await browser!.newPage();
+    await page.goto(PAGE_WITH_MUTIPLE_EXLANATION_DIV);
+
+    await page.waitForSelector(SELECTORS.EXPLANATION_SECTORS);
+
+    const explanationSections = await page.$$(SELECTORS.EXPLANATION_SECTORS);
+
+    const btnClass = `.${SELECTORS.CLASS_BTN_COPY_SINGAL_PARAGRAPH}`;
+
+    const secondSection = explanationSections[1];
+    const button = await secondSection.$(btnClass);
+
+    expect(button).not.toBeNull();
+
+    await clearClipboard(page);
+
+    await button!.click();
+
+    const copiedText = await page.evaluate(() => navigator.clipboard.readText());
+
+    expect(copiedText.startsWith(prefix)).toBeTruthy();
+    expect(copiedText).toContain(endPartOfKasihSecondParagraphExplanation);
+
+    expect(copiedText).not.toContain(explanationKasihInTheFirstParagraph);
   });
 });

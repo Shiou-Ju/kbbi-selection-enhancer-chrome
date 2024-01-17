@@ -113,6 +113,18 @@ function convertSelectedTextToPromptForTranslation(
   return modifiedText;
 }
 
+const createButtonContainer = () => {
+  let buttonContainer = document.getElementById(SELECTORS.ID_CONTAINER_BTN);
+
+  if (buttonContainer) {
+    return buttonContainer;
+  } else {
+    buttonContainer = document.createElement('div');
+    buttonContainer.id = SELECTORS.ID_CONTAINER_BTN;
+    return buttonContainer;
+  }
+};
+
 const addCaptureAllBtn = () => {
   const btnParent = document.querySelector(SELECTORS.BTN_PARENT_ELEMENT);
   if (!btnParent) return;
@@ -125,10 +137,12 @@ const addCaptureAllBtn = () => {
   button.className = 'btn btn-default';
   button.id = SELECTORS.ID_BTN_FOR_ALL_EXPLANAION;
 
-  const buttonContainer = document.createElement('div');
-  buttonContainer.appendChild(button);
+  const buttonContainer = createButtonContainer();
 
-  btnParent.insertAdjacentElement('afterend', buttonContainer);
+  if (!btnParent.contains(buttonContainer)) {
+    btnParent.insertAdjacentElement('afterend', buttonContainer);
+  }
+  buttonContainer.appendChild(button);
 
   button.addEventListener('click', async () => {
     const explanationElements = document.querySelectorAll(SELECTORS.EXPLANATION_SECTORS);
@@ -160,8 +174,63 @@ const addCaptureAllBtn = () => {
   });
 };
 
+function createSectionOwnedCopyBtn() {
+  const button = document.createElement('button');
+  button.textContent = 'Copy';
+  button.className = 'btn btn-default ' + SELECTORS.CLASS_BTN_COPY_SINGAL_PARAGRAPH;
+  button.style.position = 'absolute';
+  button.style.top = '0';
+  button.style.right = '0';
+
+  return button;
+}
+
+const addCopyButtonsToSections = () => {
+  const explanationSections = document.querySelectorAll(SELECTORS.EXPLANATION_SECTORS);
+
+  explanationSections.forEach((section) => {
+    if (!(section instanceof HTMLElement)) return;
+
+    section.style.position = 'relative';
+
+    const button = createSectionOwnedCopyBtn();
+    section.appendChild(button);
+
+    button.addEventListener('click', () => {
+      const textToCopy = section.textContent ? section.textContent.trim() : '';
+
+      // TODO: extract
+      const tempDiv = ensureTempDiv('tempClipboardContent', textToCopy);
+      document.body.appendChild(tempDiv);
+
+      const range = document.createRange();
+      range.selectNodeContents(tempDiv);
+      const selection = window.getSelection();
+
+      if (!selection) return;
+
+      selection.removeAllRanges();
+      selection.addRange(range);
+
+      canCopyTextBeModified = true;
+      document.execCommand('copy');
+      canCopyTextBeModified = false;
+
+      button.textContent = 'Copied';
+
+      setTimeout(() => {
+        button.textContent = 'Copy';
+      }, 1000);
+
+      document.body.removeChild(tempDiv);
+      selection.removeAllRanges();
+    });
+  });
+};
+
 document.addEventListener('keydown', handleKeyDown);
 document.addEventListener('keyup', handleKeyUp);
 
 addCopyModification();
 addCaptureAllBtn();
+addCopyButtonsToSections();
