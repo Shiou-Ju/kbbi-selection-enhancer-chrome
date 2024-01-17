@@ -1,30 +1,19 @@
 # if the code does not work, take macos for example, open the System Preferences > Security & Privacy > Privacy tab.
 # turn on permission for the terminal app, and execute this try to see if spotlight is open
-# pyautogui.hotkey('command', 'space', interval=0.1)
+# even using mandarin or other languages, as long as there is insertion, the test shall pass
 
 import pyautogui
 import sys
-import time
 
+has_input = len(
+    sys.argv) > 1
 
-# even using mandarin or other languages, as long as there is insertion, the test shall pass
+default_text = "hello world"
 
-# import time
+# bug: https://github.com/asweigart/pyautogui/issues/796
+text_to_type_but_sometimes_triggers_bug = sys.argv[1] if has_input else default_text
 
-# change insertion if using multiple keyboard
-# pyautogui.hotkey('ctrl', 'space', interval=0.2)
-# time.sleep(0.3)
-# pyautogui.hotkey('ctrl', 'space', interval=0.2)
-# time.sleep(0.3)
-# pyautogui.press('capslock')
-# time.sleep(0.3)
+interval_between_chars = 0.2
 
-delay_duration_for_no_dictation = 1.0
-time.sleep(delay_duration_for_no_dictation)
-
-
-text_to_type = sys.argv[1] if len(sys.argv) > 1 else "hello world"
-
-not_to_trigger_dictation_interval = 0.2
-
-pyautogui.write(text_to_type, interval=not_to_trigger_dictation_interval)
+pyautogui.write(text_to_type_but_sometimes_triggers_bug,
+                interval=interval_between_chars)

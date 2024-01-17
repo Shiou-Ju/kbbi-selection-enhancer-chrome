@@ -93,9 +93,9 @@ describe('Chrome Browser Context Menu Tests', () => {
        * if this test triggers dictation and emoji panel, it's normal
        * issue: https://github.com/asweigart/pyautogui/issues/796
        */
-      const pyAutoGUIMayNotTypeAsExpected = `python ${__dirname}/scripts/type_text.py "${exampleStringToBeAumatedEnter}"`;
+      const scriptThatMayNotInsertWordsAsExpected = `python ${__dirname}/scripts/type_text.py "${exampleStringToBeAumatedEnter}"`;
 
-      await execAsync(pyAutoGUIMayNotTypeAsExpected);
+      await execAsync(scriptThatMayNotInsertWordsAsExpected);
 
       await pause(2000);
     } catch (error) {
