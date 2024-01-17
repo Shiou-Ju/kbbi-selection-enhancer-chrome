@@ -16,6 +16,9 @@ const PAGE_WITH_ONLY_ONE_EXPLANATION_DIV = 'https://kbbi.co.id/arti-kata/main';
 
 const PAGE_WITH_MUTIPLE_EXLANATION_DIV = 'https://kbbi.co.id/arti-kata/kasih';
 
+const explanationKasihInTheFirstParagraph = 'saling mengasihi; saling';
+const endPartOfKasihSecondParagraphExplanation = 'Ibu adalah ~ kakakku';
+
 /**
  * 嘗試透過 clipboardy 來清空，但是沒辦法 compile
  * 接著嘗試使用 jest-clipboard 清空，但遭遇到 transformIgnorePatterns 以及 babel.config.js 設置後，仍然無法運作的問題
@@ -271,9 +274,6 @@ describe('Extension loaded with text modification functionality', () => {
     expect(allExplanationsText).toBeDefined();
     expect(typeof allExplanationsText).toBe('string');
 
-    const explanationInTheMiddle = 'saling mengasihi; saling';
-    const endPartOfExplanation = 'Ibu adalah ~ kakakku';
-
     await clearClipboard(page);
 
     const btnById = '#' + SELECTORS.ID_BTN_FOR_ALL_EXPLANAION;
@@ -282,8 +282,8 @@ describe('Extension loaded with text modification functionality', () => {
     const copiedText = await page.evaluate(() => navigator.clipboard.readText());
 
     expect(copiedText.startsWith(prefix)).toBeTruthy();
-    expect(copiedText).toContain(explanationInTheMiddle);
-    expect(copiedText).toContain(endPartOfExplanation);
+    expect(copiedText).toContain(explanationKasihInTheFirstParagraph);
+    expect(copiedText).toContain(endPartOfKasihSecondParagraphExplanation);
   });
 
   test('button text should change to "Copied" on click and revert back after 1 second', async () => {
@@ -383,5 +383,35 @@ describe('Extension loaded with text modification functionality', () => {
       expect(buttonBounds.top).toBeCloseTo(sectionTopAddedBorder, precision);
       expect(buttonBounds.right).toBeCloseTo(sectionRightWithOutBorder, precision);
     }
+  });
+
+  test('clicking the second copy button should retrieve second explanation paragraph from the page', async () => {
+    await browser!
+      .defaultBrowserContext()
+      .overridePermissions('https://kbbi.co.id', ['clipboard-read', 'clipboard-write']);
+
+    const page = await browser!.newPage();
+    await page.goto(PAGE_WITH_MUTIPLE_EXLANATION_DIV);
+
+    await page.waitForSelector(SELECTORS.EXPLANATION_SECTORS);
+
+    const explanationSections = await page.$$(SELECTORS.EXPLANATION_SECTORS);
+
+    const btnClass = '.' + SELECTORS.CLASS_BTN_COPY_SINGAL_PARAGRAPH;
+
+    const secondSection = explanationSections[1];
+    const button = await secondSection.$(btnClass);
+
+    expect(button).not.toBeNull();
+
+    await clearClipboard(page);
+
+    await button!.click();
+
+    const copiedText = await page.evaluate(() => navigator.clipboard.readText());
+
+    expect(copiedText.startsWith(prefix)).toBeTruthy();
+    expect(copiedText).not.toContain(explanationKasihInTheFirstParagraph);
+    expect(copiedText).toContain(endPartOfKasihSecondParagraphExplanation);
   });
 });
