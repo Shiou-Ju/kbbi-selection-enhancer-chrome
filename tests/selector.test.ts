@@ -4,8 +4,7 @@ import { extractMeaningWordsFromInnerHtml } from '../src/extractMeaningWordsFrom
 
 const DERIVATIVES_IN_ONE_SECTION = 'https://kbbi.co.id/arti-kata/ajar';
 
-const DERIVATIVES_IN_MUTIPLE_SECTIONS = 'https://kbbi.co.id/arti-kata/acara';
-// const DERIVATIVES_IN_MUTIPLE_SECTIONS = 'https://kbbi.co.id/arti-kata/pada';
+const DERIVATIVES_IN_MUTIPLE_SECTIONS = 'https://kbbi.co.id/arti-kata/pada';
 
 describe('KBBI Selector Tests', () => {
   let browser: Browser;

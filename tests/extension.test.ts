@@ -123,7 +123,6 @@ describe('Extension loaded with text modification functionality', () => {
 
     const isSelectionAvailable = await page.evaluate(() => {
       const selection = document.getSelection();
-      //   return selection !== null && selection.toString() !== '';
       return selection !== null;
     });
 
@@ -276,9 +275,6 @@ describe('Extension loaded with text modification functionality', () => {
     const endPartOfExplanation = 'Ibu adalah ~ kakakku';
 
     await clearClipboard(page);
-
-    // expect(allExplanationsText).toContain(explanationInTheMiddle);
-    // expect(allExplanationsText).toContain(endPartOfExplanation);
 
     const btnById = '#' + SELECTORS.ID_BTN_FOR_ALL_EXPLANAION;
     await page.click(btnById);
