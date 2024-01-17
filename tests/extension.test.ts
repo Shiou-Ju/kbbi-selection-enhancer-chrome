@@ -342,4 +342,32 @@ describe('Extension loaded with text modification functionality', () => {
 
     expect(titleOccurrences).toBe(1);
   });
+
+  test('each explanation section should have a "Copy" button on the top right corner', async () => {
+    await browser!
+      .defaultBrowserContext()
+      .overridePermissions('https://kbbi.co.id', ['clipboard-read', 'clipboard-write']);
+
+    const page = await browser!.newPage();
+    await page.goto(PAGE_WITH_MUTIPLE_EXLANATION_DIV);
+
+    const explanationSections = await page.$$(SELECTORS.EXPLANATION_SECTORS);
+
+    const btnClass = '.' + SELECTORS.CLASS_BTN_COPY_SINGAL_PARAGRAPH;
+
+    for (const section of explanationSections) {
+      const button = await section.$(btnClass);
+      expect(button).not.toBeNull();
+
+      const buttonBounds = await page.evaluate((button) => {
+        const { top, right } = button!.getBoundingClientRect();
+        return { top, right };
+      }, button);
+
+      const sectionBounds = await page.evaluate((el) => el.getBoundingClientRect(), section);
+
+      expect(buttonBounds.top).toBeCloseTo(sectionBounds.top, 10);
+      expect(buttonBounds.right).toBeCloseTo(sectionBounds.right, 10);
+    }
+  });
 });
