@@ -347,6 +347,8 @@ describe('Extension loaded with text modification functionality', () => {
     const page = await browser!.newPage();
     await page.goto(PAGE_WITH_MUTIPLE_EXLANATION_DIV);
 
+    await page.waitForSelector(SELECTORS.EXPLANATION_SECTORS);
+
     const explanationSections = await page.$$(SELECTORS.EXPLANATION_SECTORS);
 
     const btnClass = '.' + SELECTORS.CLASS_BTN_COPY_SINGAL_PARAGRAPH;
@@ -360,10 +362,26 @@ describe('Extension loaded with text modification functionality', () => {
         return { top, right };
       }, button);
 
-      const sectionBounds = await page.evaluate((el) => el.getBoundingClientRect(), section);
+      const sectionBounds = await page.evaluate((el) => {
+        const rect = el.getBoundingClientRect();
+        return {
+          top: rect.top,
+          right: rect.right,
+          height: el.offsetHeight,
+          width: el.offsetWidth,
+          clientHeight: el.clientHeight,
+        };
+      }, section);
 
-      expect(buttonBounds.top).toBeCloseTo(sectionBounds.top, 10);
-      expect(buttonBounds.right).toBeCloseTo(sectionBounds.right, 10);
+      const borderThickness = 1;
+
+      const precision = 10;
+
+      const sectionTopAddedBorder = sectionBounds.top + borderThickness;
+      const sectionRightWithOutBorder = sectionBounds.right - borderThickness;
+
+      expect(buttonBounds.top).toBeCloseTo(sectionTopAddedBorder, precision);
+      expect(buttonBounds.right).toBeCloseTo(sectionRightWithOutBorder, precision);
     }
   });
 });
