@@ -79,7 +79,7 @@ describe('KBBI Selector Tests', () => {
 
     const wordSegments = extractMeaningWordsFromInnerHtml(allInnterHtml);
 
-    console.log(`wordSegments`,wordSegments)
+    console.log(`wordSegments`, wordSegments);
 
     wordSegments.forEach((segment, index) => {
       const isRootWordElement = index === 0;
