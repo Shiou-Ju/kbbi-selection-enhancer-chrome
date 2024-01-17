@@ -6,7 +6,7 @@
   "license": "MIT",
   "main": "index.js",
   "scripts": {
-    "copy-necessary-build-files": "cp manifest.json dist/ && cp -r icons dist/ && cp src/extensionStyles.css dist/",
+    "copy-necessary-build-files": "cp manifest.json dist/ && cp -r icons dist/",
     "build": "rm -rf dist && webpack --mode production && yarn copy-necessary-build-files",
     "build-dev": "rm -rf dist && webpack --mode development && yarn copy-necessary-build-files",
     "test": "yarn build-dev && PUPPETEER_DISABLE_HEADLESS_WARNING=true  jest --verbose  --coverage --runInBand",
