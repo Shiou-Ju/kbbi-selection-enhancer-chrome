@@ -415,4 +415,59 @@ describe('Extension loaded with text modification functionality', () => {
 
     expect(copiedText).not.toContain(explanationKasihInTheFirstParagraph);
   });
+
+  test('clicking a copy button should not include the button text in the copied content', async () => {
+    await browser!
+      .defaultBrowserContext()
+      .overridePermissions('https://kbbi.co.id', ['clipboard-read', 'clipboard-write']);
+
+    const page = await browser!.newPage();
+    await page.goto(PAGE_WITH_MUTIPLE_EXLANATION_DIV);
+
+    await page.waitForSelector(SELECTORS.EXPLANATION_SECTORS);
+
+    const explanationSections = await page.$$(SELECTORS.EXPLANATION_SECTORS);
+    const btnClass = `.${SELECTORS.CLASS_BTN_COPY_SINGAL_PARAGRAPH}`;
+
+    const firstSection = explanationSections[0];
+    const button = await firstSection.$(btnClass);
+
+    expect(button).not.toBeNull();
+
+    await clearClipboard(page);
+
+    const buttonTextBeforeChaning = await button!.evaluate((el) => el.textContent);
+
+    await button!.click();
+
+    const copiedText = await page.evaluate(() => navigator.clipboard.readText());
+
+    expect(copiedText).not.toContain(buttonTextBeforeChaning);
+  });
+
+  test('clicking the "Capture All" button should retrieve all explanations excluding button texts', async () => {
+    await browser!
+      .defaultBrowserContext()
+      .overridePermissions('https://kbbi.co.id', ['clipboard-read', 'clipboard-write']);
+
+    const page = await browser!.newPage();
+    await page.goto(PAGE_WITH_MUTIPLE_EXLANATION_DIV);
+
+    const btnById = `#${SELECTORS.ID_BTN_FOR_ALL_EXPLANAION}`;
+
+    await page.waitForSelector(btnById);
+
+    const explanationSections = await page.$$(SELECTORS.EXPLANATION_SECTORS);
+    const btnClass = `.${SELECTORS.CLASS_BTN_COPY_SINGAL_PARAGRAPH}`;
+    const firstSection = explanationSections[0];
+    const buttonInFirstSection = await firstSection.$(btnClass);
+
+    const buttonTextBeforeChaning = await buttonInFirstSection!.evaluate((el) => el.textContent);
+
+    await page.click(btnById);
+
+    const copiedText = await page.evaluate(() => navigator.clipboard.readText());
+
+    expect(copiedText).not.toContain(buttonTextBeforeChaning);
+  });
 });
