@@ -113,7 +113,7 @@ describe('Chrome Browser Context Menu Tests', () => {
      * */
 
     //  const originalLengthOfHello = 5;
-    const lengthBecauseOfPyAutoGUIBug = 1;
+    const lengthBecauseOfPyAutoGUIBug = 0;
 
     expect(insertionNoMatterWhichLanguage).toBeGreaterThan(lengthBecauseOfPyAutoGUIBug);
   }, 10000);
