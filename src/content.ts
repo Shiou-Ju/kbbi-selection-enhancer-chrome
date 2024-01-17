@@ -125,6 +125,24 @@ const createButtonContainer = () => {
   }
 };
 
+function copyTextToClipboard(text: string) {
+  const tempDiv = ensureTempDiv('tempClipboardContent', text);
+  document.body.appendChild(tempDiv);
+
+  const range = document.createRange();
+  range.selectNodeContents(tempDiv);
+  const selection = window.getSelection();
+
+  if (selection) {
+    selection.removeAllRanges();
+    selection.addRange(range);
+    document.execCommand('copy');
+    selection.removeAllRanges();
+  }
+
+  document.body.removeChild(tempDiv);
+}
+
 const addCaptureAllBtn = () => {
   const btnParent = document.querySelector(SELECTORS.BTN_PARENT_ELEMENT);
   if (!btnParent) return;
@@ -165,19 +183,8 @@ const addCaptureAllBtn = () => {
       })
       .join('\n\n');
 
-    const tempDiv = ensureTempDiv('tempClipboardContent', allExplanationsText);
-
-    const range = document.createRange();
-    range.selectNodeContents(tempDiv);
-    const selection = window.getSelection();
-
-    if (!selection) return;
-
-    selection.removeAllRanges();
-    selection.addRange(range);
-
     canCopyTextBeModified = true;
-    document.execCommand('copy');
+    copyTextToClipboard(allExplanationsText);
     canCopyTextBeModified = false;
 
     button.textContent = 'Copied';
@@ -225,21 +232,8 @@ const addCopyButtonsToSections = () => {
       }
       const textToCopy = clonedNode.textContent!.trim();
 
-      // TODO: extract
-      const tempDiv = ensureTempDiv('tempClipboardContent', textToCopy);
-      document.body.appendChild(tempDiv);
-
-      const range = document.createRange();
-      range.selectNodeContents(tempDiv);
-      const selection = window.getSelection();
-
-      if (!selection) return;
-
-      selection.removeAllRanges();
-      selection.addRange(range);
-
       canCopyTextBeModified = true;
-      document.execCommand('copy');
+      copyTextToClipboard(textToCopy);
       canCopyTextBeModified = false;
 
       button.textContent = 'Copied';
@@ -247,9 +241,6 @@ const addCopyButtonsToSections = () => {
       setTimeout(() => {
         button.textContent = 'Copy';
       }, 1000);
-
-      document.body.removeChild(tempDiv);
-      selection.removeAllRanges();
     });
   });
 };
