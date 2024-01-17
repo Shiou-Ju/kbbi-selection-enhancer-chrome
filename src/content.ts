@@ -151,7 +151,9 @@ const addCaptureAllBtn = () => {
       .map((el) => {
         const clonedNode = el.cloneNode(true);
         if (clonedNode instanceof HTMLElement) {
-          const buttonInClone = clonedNode.querySelector('.copy-explanation-btn');
+          const buttonClass = `.${SELECTORS.CLASS_BTN_COPY_SINGAL_PARAGRAPH}`;
+
+          const buttonInClone = clonedNode.querySelector(buttonClass);
           if (buttonInClone) {
             clonedNode.removeChild(buttonInClone);
           }
@@ -163,7 +165,6 @@ const addCaptureAllBtn = () => {
       })
       .join('\n\n');
 
-      
     const tempDiv = ensureTempDiv('tempClipboardContent', allExplanationsText);
 
     const range = document.createRange();
@@ -215,7 +216,9 @@ const addCopyButtonsToSections = () => {
         return;
       }
 
-      const buttonInClone = clonedNode.querySelector('.copy-explanation-btn');
+      const buttonClass = `.${SELECTORS.CLASS_BTN_COPY_SINGAL_PARAGRAPH}`;
+
+      const buttonInClone = clonedNode.querySelector(buttonClass);
 
       if (buttonInClone) {
         clonedNode.removeChild(buttonInClone);
