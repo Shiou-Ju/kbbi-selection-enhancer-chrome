@@ -410,7 +410,6 @@ describe('Extension loaded with text modification functionality', () => {
 
     const copiedText = await page.evaluate(() => navigator.clipboard.readText());
 
-    
     expect(copiedText.startsWith(prefix)).toBeTruthy();
     expect(copiedText).toContain(endPartOfKasihSecondParagraphExplanation);
 
