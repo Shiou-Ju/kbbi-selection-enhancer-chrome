@@ -148,9 +148,22 @@ const addCaptureAllBtn = () => {
     const explanationElements = document.querySelectorAll(SELECTORS.EXPLANATION_SECTORS);
 
     const allExplanationsText = Array.from(explanationElements)
-      .map((el) => (el.textContent ? el.textContent.trim() : ''))
+      .map((el) => {
+        const clonedNode = el.cloneNode(true);
+        if (clonedNode instanceof HTMLElement) {
+          const buttonInClone = clonedNode.querySelector('.copy-explanation-btn');
+          if (buttonInClone) {
+            clonedNode.removeChild(buttonInClone);
+          }
+          return clonedNode.textContent!.trim();
+        }
+
+        const fallBackInCaseNonHTMLElement = '';
+        return fallBackInCaseNonHTMLElement;
+      })
       .join('\n\n');
 
+      
     const tempDiv = ensureTempDiv('tempClipboardContent', allExplanationsText);
 
     const range = document.createRange();
@@ -197,7 +210,17 @@ const addCopyButtonsToSections = () => {
     section.appendChild(button);
 
     button.addEventListener('click', () => {
-      const textToCopy = section.textContent ? section.textContent.trim() : '';
+      const clonedNode = section.cloneNode(true);
+      if (!(clonedNode instanceof HTMLElement)) {
+        return;
+      }
+
+      const buttonInClone = clonedNode.querySelector('.copy-explanation-btn');
+
+      if (buttonInClone) {
+        clonedNode.removeChild(buttonInClone);
+      }
+      const textToCopy = clonedNode.textContent!.trim();
 
       // TODO: extract
       const tempDiv = ensureTempDiv('tempClipboardContent', textToCopy);
