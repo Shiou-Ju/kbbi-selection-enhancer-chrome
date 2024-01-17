@@ -197,7 +197,7 @@ describe('Extension loaded with text modification functionality', () => {
     const page = await browser!.newPage();
     await page.goto(PAGE_WITH_ONLY_ONE_EXPLANATION_DIV);
 
-    const buttonId = '#' + SELECTORS.ID_BTN_FOR_ALL_EXPLANAION;
+    const buttonId = `#${SELECTORS.ID_BTN_FOR_ALL_EXPLANAION}`;
 
     const captureAllButton = await page.$(buttonId);
     expect(captureAllButton).not.toBeNull();
@@ -230,7 +230,7 @@ describe('Extension loaded with text modification functionality', () => {
       SELECTORS.EXPLANATION_SECTORS
     );
 
-    const btnById = '#' + SELECTORS.ID_BTN_FOR_ALL_EXPLANAION;
+    const btnById = `#${SELECTORS.ID_BTN_FOR_ALL_EXPLANAION}`;
 
     await page.waitForSelector(btnById);
 
@@ -276,7 +276,7 @@ describe('Extension loaded with text modification functionality', () => {
 
     await clearClipboard(page);
 
-    const btnById = '#' + SELECTORS.ID_BTN_FOR_ALL_EXPLANAION;
+    const btnById = `#${SELECTORS.ID_BTN_FOR_ALL_EXPLANAION}`;
     await page.click(btnById);
 
     const copiedText = await page.evaluate(() => navigator.clipboard.readText());
@@ -294,7 +294,7 @@ describe('Extension loaded with text modification functionality', () => {
     const page = await browser!.newPage();
     await page.goto(PAGE_WITH_MUTIPLE_EXLANATION_DIV);
 
-    const btnById = '#' + SELECTORS.ID_BTN_FOR_ALL_EXPLANAION;
+    const btnById = `#${SELECTORS.ID_BTN_FOR_ALL_EXPLANAION}`;
 
     await page.waitForSelector(btnById);
 
@@ -324,7 +324,7 @@ describe('Extension loaded with text modification functionality', () => {
     const page = await browser!.newPage();
     await page.goto(PAGE_WITH_MUTIPLE_EXLANATION_DIV);
 
-    const btnById = '#' + SELECTORS.ID_BTN_FOR_ALL_EXPLANAION;
+    const btnById = `#${SELECTORS.ID_BTN_FOR_ALL_EXPLANAION}`;
 
     await page.waitForSelector(btnById);
 
@@ -351,7 +351,7 @@ describe('Extension loaded with text modification functionality', () => {
 
     const explanationSections = await page.$$(SELECTORS.EXPLANATION_SECTORS);
 
-    const btnClass = '.' + SELECTORS.CLASS_BTN_COPY_SINGAL_PARAGRAPH;
+    const btnClass = `.${SELECTORS.CLASS_BTN_COPY_SINGAL_PARAGRAPH}`;
 
     for (const section of explanationSections) {
       const button = await section.$(btnClass);
@@ -397,7 +397,7 @@ describe('Extension loaded with text modification functionality', () => {
 
     const explanationSections = await page.$$(SELECTORS.EXPLANATION_SECTORS);
 
-    const btnClass = '.' + SELECTORS.CLASS_BTN_COPY_SINGAL_PARAGRAPH;
+    const btnClass = `.${SELECTORS.CLASS_BTN_COPY_SINGAL_PARAGRAPH}`;
 
     const secondSection = explanationSections[1];
     const button = await secondSection.$(btnClass);
@@ -413,7 +413,7 @@ describe('Extension loaded with text modification functionality', () => {
     
     expect(copiedText.startsWith(prefix)).toBeTruthy();
     expect(copiedText).toContain(endPartOfKasihSecondParagraphExplanation);
-    
+
     expect(copiedText).not.toContain(explanationKasihInTheFirstParagraph);
   });
 });
