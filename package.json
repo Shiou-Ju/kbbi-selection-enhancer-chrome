@@ -6,14 +6,14 @@
   "license": "MIT",
   "main": "index.js",
   "scripts": {
-    "copy-necessary-build-files": "cp manifest.json dist/ && cp -r icons dist/",
-    "build": "rm -rf dist && webpack --mode production && yarn copy-necessary-build-files",
-    "build-dev": "rm -rf dist && webpack --mode development && yarn copy-necessary-build-files",
-    "test": "yarn build-dev && PUPPETEER_DISABLE_HEADLESS_WARNING=true  jest --verbose  --coverage --runInBand",
+    "copy-necessary-build-files": "xcopy manifest.json dist\\ && xcopy /E /I icons dist\\",
+    "build": "rimraf dist && webpack --mode production && yarn copy-necessary-build-files",
+    "build-dev": "rimraf dist && webpack --mode development && yarn copy-necessary-build-files",
+    "test": "yarn build-dev &&  jest --verbose  --coverage --runInBand",
     "test-kbbi-page": "yarn build-dev && PUPPETEER_DISABLE_HEADLESS_WARNING=true jest --verbose --coverage tests/selector.test.ts",
     "test-context-menu": "yarn build-dev && PUPPETEER_DISABLE_HEADLESS_WARNING=true jest --verbose --coverage tests/context-menu.test.ts",
-    "test-copy-functions": "yarn build-dev && PUPPETEER_DISABLE_HEADLESS_WARNING=true jest --verbose --coverage tests/extension.test.ts",
-    "build-legacy": "rm -rf dist && tsc && cp manifest.json dist/ && cp -r icons dist/",
+    "test-copy-functions": "yarn build-dev &&  jest --verbose --coverage tests/extension.test.ts",
+    "build-legacy": "rimraf dist && tsc && xcopy manifest.json dist\\ && xcopy /E /I icons dist\\",
     "format": "prettier --write \"**/*.{ts,js,json}\""
   },
   "devDependencies": {
@@ -41,5 +41,9 @@
     "typescript": "^5.3.3",
     "webpack": "^5.89.0",
     "webpack-cli": "^5.1.4"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.1",
+    "rimraf": "^5.0.5"
   }
 }
