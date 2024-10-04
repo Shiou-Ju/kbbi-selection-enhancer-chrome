@@ -213,47 +213,30 @@ describe('Extension loaded with text modification functionality', () => {
     expect(captureAllButton).toBeNull();
   });
 
-  test('copy button should be displayed independently on a new line at the top of the explanation text', async () => {
+  test('copy button should not block the first line of the explanation', async () => {
     const page = await browser!.newPage();
     await page.goto(PAGE_WITH_ONLY_ONE_EXPLANATION_DIV);
 
     const explanationDiv = await page.$('.arti');
-
+    const firstBoldElement = await page.$('.arti b');
     const copyButton = await page.$('.copy-explanation-btn');
 
-    if (!explanationDiv || !copyButton) {
-      throw new Error('Explanation div or copy button not found on the page');
+    if (!explanationDiv || !copyButton || !firstBoldElement) {
+      throw new Error('Explanation div, copy button, or first bold element not found on the page');
     }
 
     const explanationBox = await explanationDiv.boundingBox();
     const buttonBox = await copyButton.boundingBox();
+    const firstBoldBox = await firstBoldElement.boundingBox();
 
-    if (!explanationBox || !buttonBox) {
-      throw new Error('Failed to retrieve bounding box for explanation div or copy button');
+    if (!explanationBox || !buttonBox || !firstBoldBox) {
+      throw new Error('Failed to retrieve bounding box for explanation div, copy button, or first bold element');
     }
 
-    expect(buttonBox.y).toBeLessThan(explanationBox.y);
+    await takeScreenshotForTest('copy-button-not-block-first-line', page);
 
-    // 獲取按鈕的樣式屬性
-    const buttonStyle = await page.evaluate((button) => {
-      const style = window.getComputedStyle(button);
-      return {
-        display: style.display,
-        position: style.position,
-        float: style.float,
-        clear: style.clear,
-        marginTop: style.marginTop,
-        marginBottom: style.marginBottom,
-        width: style.width,
-      };
-    }, copyButton);
-
-    // 檢查按鈕是否顯示為 block，或者確保它不浮動
-    expect(buttonStyle.display).toBe('block');
-    expect(buttonStyle.float).toBe('none');
-    expect(buttonStyle.clear).toBe('both'); // 確保按鈕清除浮動
-
-    await takeScreenshotForTest('copy-button-new-line-top', page);
+    expect(buttonBox.y).toBeLessThanOrEqual(firstBoldBox.y);
+    expect(buttonBox.y + buttonBox.height).toBeLessThanOrEqual(firstBoldBox.y);
   });
 
   test('clicking the capture button should retrieve the only explanation div full text', async () => {
