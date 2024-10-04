@@ -218,11 +218,6 @@ const addCopyButtonsToSections = () => {
     const button = createSectionOwnedCopyBtn();
     section.appendChild(button);
 
-    // const firstBoldElement = section.querySelector('b');
-    // if (firstBoldElement instanceof HTMLElement) {
-    //   firstBoldElement.style.marginTop = '30px';
-    // }
-
     button.addEventListener('click', () => {
       const clonedNode = section.cloneNode(true);
       if (!(clonedNode instanceof HTMLElement)) {
