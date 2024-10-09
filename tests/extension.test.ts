@@ -213,6 +213,32 @@ describe('Extension loaded with text modification functionality', () => {
     expect(captureAllButton).toBeNull();
   });
 
+  test('copy button should not block the first line of the explanation', async () => {
+    const page = await browser!.newPage();
+    await page.goto(PAGE_WITH_ONLY_ONE_EXPLANATION_DIV);
+
+    const explanationDiv = await page.$('.arti');
+    const firstBoldElement = await page.$('.arti b');
+    const copyButton = await page.$('.copy-explanation-btn');
+
+    if (!explanationDiv || !copyButton || !firstBoldElement) {
+      throw new Error('Explanation div, copy button, or first bold element not found on the page');
+    }
+
+    const explanationBox = await explanationDiv.boundingBox();
+    const buttonBox = await copyButton.boundingBox();
+    const firstBoldBox = await firstBoldElement.boundingBox();
+
+    if (!explanationBox || !buttonBox || !firstBoldBox) {
+      throw new Error('Failed to retrieve bounding box for explanation div, copy button, or first bold element');
+    }
+
+    await takeScreenshotForTest('copy-button-not-block-first-line', page);
+
+    expect(buttonBox.y).toBeLessThanOrEqual(firstBoldBox.y);
+    expect(buttonBox.y + buttonBox.height).toBeLessThanOrEqual(firstBoldBox.y);
+  });
+
   test('clicking the capture button should retrieve the only explanation div full text', async () => {
     await browser!
       .defaultBrowserContext()

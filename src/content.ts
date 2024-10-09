@@ -213,6 +213,7 @@ const addCopyButtonsToSections = () => {
     if (!(section instanceof HTMLElement)) return;
 
     section.style.position = 'relative';
+    section.style.paddingTop = '60px';
 
     const button = createSectionOwnedCopyBtn();
     section.appendChild(button);
